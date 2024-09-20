@@ -8,6 +8,6 @@ export class AuthController extends BaseController {
 	}
 
 	define_routes(): void {
-		this.router.post(Endpoints.Login, AuthRepository.login);
+		this.router.post(Endpoints.AuthLogin, AuthRepository.login);
 	}
 }

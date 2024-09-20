@@ -1,6 +1,6 @@
 import { Server } from "./core/server/server";
+import dotenv from "dotenv";
 
-const dotenv = require("dotenv");
 dotenv.config();
 
 const PORT = process.env.PORT || 3000;

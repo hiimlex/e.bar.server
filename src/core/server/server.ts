@@ -1,4 +1,7 @@
+import { json } from "body-parser";
+import cors from "cors";
 import express, { Application } from "express";
+import mongoose from "mongoose";
 import { AuthController } from "src/modules";
 export class Server {
 	app!: Application;
@@ -8,6 +11,11 @@ export class Server {
 	constructor(port: number | string) {
 		this.app = express();
 		this.port = port;
+
+		this.set_middlewares();
+		this.init_routes();
+
+		this.connect_mongo_db();
 	}
 
 	start(): void {
@@ -22,7 +30,18 @@ export class Server {
 		this.app.use(this.api_prefix, auth_controller.router);
 	}
 
-	private set_middlewares(): void {}
+	private set_middlewares(): void {
+		this.app.use(json());
+		this.app.use(cors());
+	}
 
-	private async connect_mongo_db(): Promise<void> {}
+	private async connect_mongo_db(): Promise<void> {
+		try {
+			await mongoose.connect(process.env.DB_URL || "").then(() => {
+				console.log("Connected to MongoDB");
+			});
+		} catch (error) {
+			console.error("Error connecting to MongoDB: ", error);
+		}
+	}
 }

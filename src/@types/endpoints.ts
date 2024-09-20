@@ -1,3 +1,4 @@
 export enum Endpoints {
-	Login = "/login",
+	// Auth
+	AuthLogin = "/auth/login",
 }

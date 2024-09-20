@@ -11,7 +11,7 @@ class AuthRepository {
 				throw new HttpException(400, "USER_NOT_FOUND");
 			}
 
-			return res.status(200).json({ message: "Login successful" });
+			return res.status(200).json({ email, password });
 		} catch (error) {
 			return throw_error(error, res);
 		}
