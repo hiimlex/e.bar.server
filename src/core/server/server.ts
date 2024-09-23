@@ -2,7 +2,7 @@ import { json } from "body-parser";
 import cors from "cors";
 import express, { Application } from "express";
 import mongoose from "mongoose";
-import { AuthController } from "src/modules";
+import { AuthController, StoreController } from "../../modules";
 export class Server {
 	app!: Application;
 	port!: number | string;
@@ -26,8 +26,10 @@ export class Server {
 
 	private init_routes(): void {
 		const auth_controller = new AuthController();
+		const store_controller = new StoreController();
 
 		this.app.use(this.api_prefix, auth_controller.router);
+		this.app.use(this.api_prefix, store_controller.router);
 	}
 
 	private set_middlewares(): void {

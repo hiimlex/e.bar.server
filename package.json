@@ -9,7 +9,8 @@
 		"dev": "ts-node-dev -r tsconfig-paths/register src/app.ts",
 		"build": "npx tsc && npx tspath -f",
 		"watch-ts": "npx tsc -w",
-		"test": "npx jest"
+		"test": "npx jest",
+		"test:watch": "npx jest --watch --findRelatedTests"
 	},
 	"repository": {
 		"type": "git",
