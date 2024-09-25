@@ -1,6 +1,6 @@
-import { BaseController } from "@core/base_controller";
+import { BaseController } from "@core";
 import AuthRepository from "./auth.repository";
-import { Endpoints } from "src/@types";
+import { Endpoints } from "@types";
 
 export class AuthController extends BaseController {
 	constructor() {

@@ -11,7 +11,7 @@ const AddressSchema = new Schema(
 			required: true,
 		},
 		number: {
-			type: String,
+			type: Number,
 			required: true,
 		},
 		complement: {
@@ -30,7 +30,7 @@ const AddressSchema = new Schema(
 			required: true,
 		},
 	},
-	{ versionKey: false, timestamps: false, _id: false }
+	{ versionKey: false, timestamps: false, _id: false, id: false }
 );
 
 export { AddressSchema };

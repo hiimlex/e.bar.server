@@ -1,13 +1,16 @@
-import { InferSchemaType, model, Model, Schema } from "mongoose";
-import { Collections } from "src/@types";
+import { ObjectId, InferSchemaType, model, Model, Schema } from "mongoose";
+import { Collections } from "@types";
 import { AddressSchema } from "../address";
 
 const StoreSchema = new Schema(
 	{
+		_id: {
+			type: Schema.ObjectId,
+			auto: true,
+		},
 		name: {
 			type: String,
 			required: true,
-			unique: true,
 		},
 		bio: {
 			type: String,
@@ -36,11 +39,13 @@ const StoreSchema = new Schema(
 		address: {
 			type: AddressSchema,
 		},
+		enabled: {
+			type: Boolean,
+			default: true,
+		},
 	},
 	{
 		versionKey: false,
-		id: true,
-		_id: false,
 		timestamps: true,
 		collection: Collections.Stores,
 	}
@@ -54,17 +59,17 @@ interface IStoreDocument extends Document, TStore {
 
 interface IStoreMethods {}
 
-interface IStoreModel extends Model<IStoreDocument, IStoreMethods> {
-	populateAll(): Promise<IStoreModel>;
+interface IStoresModel extends Model<IStoreDocument, IStoreMethods> {
+	populateAll(): Promise<IStoresModel>;
 }
 
 // StoreSchema.plugin(uniqueValidator, { message: "{PATH} já está em uso." });
 
-StoreSchema.methods.toJSON = function (): TStore {
-	const barber = this.toObject();
+// StoreSchema.methods.toJSON = function (): TStore {
+// 	const barber = this.toObject();
 
-	return barber;
-};
+// 	return barber;
+// };
 
 StoreSchema.methods.populateAll = async function (): Promise<IStoreDocument> {
 	// await this.populate("avatar");
@@ -78,9 +83,9 @@ StoreSchema.pre("save", async function (next) {
 	next();
 });
 
-const StoreModel: IStoreModel = model<IStoreDocument, IStoreModel>(
+const StoresModel: IStoresModel = model<IStoreDocument, IStoresModel>(
 	Collections.Stores,
 	StoreSchema
 );
 
-export { StoreSchema, TStore, IStoreDocument, IStoreModel, StoreModel };
+export { TStore, IStoreDocument, IStoresModel, StoresModel };

@@ -1,55 +1,55 @@
 export enum Endpoints {
 	// Auth
-	AuthLogin = "/auth/login",
-	AuthSignup = "/auth/signup",
+	AuthLogin = "/api/auth/login",
+	AuthSignup = "/api/auth/signup",
 
 	// Store
-	StoreCreate = "/stores",
-	StoreList = "/stores",
-	StoreListById = "/stores/:id",
-	StoreUpdate = "/stores/:id",
-	StoreDelete = "/stores/:id",
+	StoreCreate = "/api/stores",
+	StoreList = "/api/stores",
+	StoreListById = "/api/stores/:id",
+	StoreUpdate = "/api/stores/:id",
+	StoreDelete = "/api/stores/:id",
 
-	StoreListProducts = "/stores/products",
-	StoreProfile = "/stores/profile",
+	StoreListProducts = "/api/stores/products",
+	StoreProfile = "/api/stores/profile",
 
 	// Products
-	ProductCreate = "/products",
-	ProductList = "/products",
-	ProductListById = "/products/:id",
-	ProductUpdate = "/products/:id",
-	ProductDelete = "/products/:id",
+	ProductCreate = "/api/products",
+	ProductList = "/api/products",
+	ProductListById = "/api/products/:id",
+	ProductUpdate = "/api/products/:id",
+	ProductDelete = "/api/products/:id",
 
 	// Categories
-	CategoryCreate = "/categories",
-	CategoryList = "/categories",
-	CategoryListByStoreId = "/categories/:storeId",
-	CategoryUpdate = "/categories/:id",
-	CategoryDelete = "/categories/:id",
+	CategoryCreate = "/api/categories",
+	CategoryList = "/api/categories",
+	CategoryListByStoreId = "/api/categories/:storeId",
+	CategoryUpdate = "/api/categories/:id",
+	CategoryDelete = "/api/categories/:id",
 
 	// Waiters
-	WaiterCreate = "/waiters",
-	WaiterList = "/waiters",
-	WaiterListById = "/waiters/:id",
-	WaiterUpdate = "/waiters/:id",
-	WaiterDelete = "/waiters/:id",
+	WaiterCreate = "/api/waiters",
+	WaiterList = "/api/waiters",
+	WaiterListById = "/api/waiters/:id",
+	WaiterUpdate = "/api/waiters/:id",
+	WaiterDelete = "/api/waiters/:id",
 
 	// Orders
-	OrderCreate = "/orders",
-	OrderList = "/orders",
-	OrderListById = "/orders/:id",
-	OrderUpdate = "/orders/:id",
-	OrderDelete = "/orders/:id",
+	OrderCreate = "/api/orders",
+	OrderList = "/api/orders",
+	OrderListById = "/api/orders/:id",
+	OrderUpdate = "/api/orders/:id",
+	OrderDelete = "/api/orders/:id",
 
 	// Payments
-	PaymentCreate = "/payments",
-	PaymentList = "/payments",
-	PaymentListById = "/payments/:id",
-	PaymentUpdate = "/payments/:id",
+	PaymentCreate = "/api/payments",
+	PaymentList = "/api/payments",
+	PaymentListById = "/api/payments/:id",
+	PaymentUpdate = "/api/payments/:id",
 
 	// Tables
-	TableCreate = "/tables",
-	TableList = "/tables",
-	TableListById = "/tables/:id",
-	TableUpdate = "/tables/:id",
+	TableCreate = "/api/tables",
+	TableList = "/api/tables",
+	TableListById = "/api/tables/:id",
+	TableUpdate = "/api/tables/:id",
 }

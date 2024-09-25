@@ -1,3 +1,4 @@
 export * from "./auth";
 export * from "./address";
-export * from "./store";
+export * from "./stores";
+export * from "./products";

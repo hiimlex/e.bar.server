@@ -7,12 +7,16 @@
 		"strict": true,
 		"skipLibCheck": true,
 		"outDir": "dist",
-		"baseUrl": "./",
+		"baseUrl": "./src",
 		"paths": {
-			"@api/*": ["./src/api/*"],
-			"@core/*": ["./src/core/*"],
-			"@config/*": ["./src/config/*"],
-			"@utils/*": ["./src/utils/*"]
+			"@modules/*": ["./modules/*"],
+			"@core/*": ["./core/*"],
+			"@utils/*": ["./utils/*"],
+			"@types/*": ["./@types/*"],
+			"@modules": ["./modules/"],
+			"@core": ["./core/"],
+			"@utils": ["./utils/"],
+			"@types": ["./@types/"]
 		}
 	},
 	"include": ["./src/**/*"],

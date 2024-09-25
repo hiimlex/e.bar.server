@@ -1,15 +1,16 @@
-import { throw_error } from "@utils/throw_error";
+import { throw_error } from "@utils";
 import { Request, Response } from "express";
-import { StoreModel, TStore } from "./store.model";
-import { IPaginationResponse } from "src/@types";
+import { StoresModel, TStore } from "./stores.model";
+import { IPaginationResponse, SystemErrors } from "@types";
+import { HttpException } from "@core/server";
 
-class StoreRepository {
+class StoresRepository {
 	async list(
 		req: Request,
 		res: Response
 	): Promise<Response<IPaginationResponse<TStore>>> {
 		try {
-			const stores = StoreModel.find();
+			const stores = await StoresModel.find();
 
 			return res.status(200).json({ content: stores });
 		} catch (error: any) {
@@ -19,7 +20,19 @@ class StoreRepository {
 
 	async list_by_id(req: Request, res: Response): Promise<Response<any>> {
 		try {
-			return res.status(200).json({});
+			const id = req.params.id;
+
+			if (!id) {
+				throw new HttpException(400, "ID_NOT_PROVIDED");
+			}
+
+			const store = await StoresModel.findById(id);
+
+			if (!store) {
+				throw new HttpException(400, "STORE_NOT_FOUND");
+			}
+
+			return res.status(200).json(store);
 		} catch (error: any) {
 			return throw_error(res, error);
 		}
@@ -27,7 +40,11 @@ class StoreRepository {
 
 	async create(req: Request, res: Response): Promise<Response<any>> {
 		try {
-			return res.status(200).json({});
+			const body = req.body;
+
+			const store = await StoresModel.create(body);
+
+			return res.status(201).json(store);
 		} catch (error: any) {
 			return throw_error(res, error);
 		}
@@ -35,7 +52,19 @@ class StoreRepository {
 
 	async update(req: Request, res: Response): Promise<Response<any>> {
 		try {
-			return res.status(200).json({});
+			const body = req.body;
+
+			const id = req.params.id;
+
+			if (!id) {
+				throw new HttpException(400, "STORE_NOT_FOUND");
+			}
+
+			const store = await StoresModel.findOneAndUpdate({ _id: id }, body, {
+				new: true,
+			});
+
+			return res.status(201).json(store);
 		} catch (error: any) {
 			return throw_error(res, error);
 		}
@@ -43,7 +72,15 @@ class StoreRepository {
 
 	async delete(req: Request, res: Response): Promise<Response<any>> {
 		try {
-			return res.status(200).json({});
+			const id = req.params.id;
+
+			if (!id) {
+				throw new HttpException(400, "STORE_NOT_FOUND");
+			}
+
+			await StoresModel.findByIdAndDelete(id);
+
+			return res.status(204).json(null);
 		} catch (error: any) {
 			return throw_error(res, error);
 		}
@@ -66,4 +103,4 @@ class StoreRepository {
 	}
 }
 
-export default new StoreRepository();
+export default new StoresRepository();

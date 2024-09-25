@@ -1,12 +1,12 @@
+import { AuthController, ProductsController, StoresController } from "@modules";
 import { json } from "body-parser";
 import cors from "cors";
 import express, { Application } from "express";
 import mongoose from "mongoose";
-import { AuthController, StoreController } from "../../modules";
 export class Server {
 	app!: Application;
 	port!: number | string;
-	api_prefix = process.env.API_PREFIX || "/api";
+	private mong!: typeof mongoose;
 
 	constructor(port: number | string) {
 		this.app = express();
@@ -26,10 +26,12 @@ export class Server {
 
 	private init_routes(): void {
 		const auth_controller = new AuthController();
-		const store_controller = new StoreController();
+		const stores_controller = new StoresController();
+		const products_controller = new ProductsController();
 
-		this.app.use(this.api_prefix, auth_controller.router);
-		this.app.use(this.api_prefix, store_controller.router);
+		this.app.use(auth_controller.router);
+		this.app.use(stores_controller.router);
+		this.app.use(products_controller.router);
 	}
 
 	private set_middlewares(): void {
@@ -39,11 +41,21 @@ export class Server {
 
 	private async connect_mongo_db(): Promise<void> {
 		try {
-			await mongoose.connect(process.env.DB_URL || "").then(() => {
-				console.log("Connected to MongoDB");
-			});
+			this.mong = await mongoose.connect(process.env.DB_URL || "");
+
+			console.log("Connected to MongoDB");
 		} catch (error) {
 			console.error("Error connecting to MongoDB: ", error);
+		}
+	}
+
+	async close_mongo_db(): Promise<void> {
+		if (this.mong) {
+			try {
+				await this.mong.connection.close();
+			} catch (error) {
+				console.error("Error closing MongoDB connection: ", error);
+			}
 		}
 	}
 }

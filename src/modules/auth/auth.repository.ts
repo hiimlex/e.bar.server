@@ -1,4 +1,4 @@
-import { HttpException } from "@core/server";
+import { HttpException } from "../../core";
 import { throw_error } from "@utils/throw_error";
 import { Request, Response } from "express";
 
@@ -13,7 +13,7 @@ class AuthRepository {
 
 			return res.status(200).json({ email, password });
 		} catch (error) {
-			return throw_error(error, res);
+			return throw_error(res, error);
 		}
 	}
 }
