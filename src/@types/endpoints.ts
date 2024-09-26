@@ -2,6 +2,8 @@ export enum Endpoints {
 	// Auth
 	AuthLogin = "/api/auth/login",
 	AuthSignup = "/api/auth/signup",
+	AuthGetStore = "/api/auth/get-store",
+	AuthIsAuthenticated = "/api/auth/is-authenticated",
 
 	// Store
 	StoreCreate = "/api/stores",

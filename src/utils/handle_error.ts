@@ -1,7 +1,7 @@
 import { HttpException } from "@core/server";
 import { Response } from "express";
 
-export function throw_error(res: Response, error: any): Response {
+export function handle_error(res: Response, error: any): Response {
 	const message: string = error.message || "";
 
 	if (error instanceof HttpException) {

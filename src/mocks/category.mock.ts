@@ -1,12 +1,10 @@
-import { TProduct } from "@modules";
-import { Types } from "mongoose";
-import { mockStoreId } from "./store.mock";
+import { faker } from "@faker-js/faker/.";
 import { TCategory } from "@modules/categories";
+import { Types } from "mongoose";
 
-export const mockCategoryId = new Types.ObjectId();
-
-export const mockCategory: TCategory = {
-	_id: mockCategoryId,
-	store_id: mockStoreId,
-	name: "Category Mock",
-};
+export const create_mock_category: () => Omit<
+	TCategory,
+	"_id" | "store"
+> = () => ({
+	name: faker.food.ethnicCategory(),
+});

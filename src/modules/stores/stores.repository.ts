@@ -1,8 +1,9 @@
-import { throw_error } from "@utils";
+import { handle_error } from "@utils";
 import { Request, Response } from "express";
-import { StoresModel, TStore } from "./stores.model";
-import { IPaginationResponse, SystemErrors } from "@types";
+import { IStoreDocument, StoresModel, TStore } from "./stores.model";
+import { IPaginationResponse, SALT_ROUNDS, SystemErrors } from "types";
 import { HttpException } from "@core/server";
+import { hash } from "bcrypt";
 
 class StoresRepository {
 	async list(
@@ -14,7 +15,7 @@ class StoresRepository {
 
 			return res.status(200).json({ content: stores });
 		} catch (error: any) {
-			return throw_error(res, error);
+			return handle_error(res, error);
 		}
 	}
 
@@ -34,19 +35,28 @@ class StoresRepository {
 
 			return res.status(200).json(store);
 		} catch (error: any) {
-			return throw_error(res, error);
+			return handle_error(res, error);
 		}
 	}
 
 	async create(req: Request, res: Response): Promise<Response<any>> {
 		try {
-			const body = req.body;
+			const { password, ...rest } = req.body;
 
-			const store = await StoresModel.create(body);
+			const hash_password = await hash(password, SALT_ROUNDS);
+
+			const store = await StoresModel.create({
+				...rest,
+				password: hash_password,
+			});
+
+			if (!store) {
+				throw new HttpException(400, "STORE_NOT_CREATED");
+			}
 
 			return res.status(201).json(store);
 		} catch (error: any) {
-			return throw_error(res, error);
+			return handle_error(res, error);
 		}
 	}
 
@@ -66,7 +76,33 @@ class StoresRepository {
 
 			return res.status(201).json(store);
 		} catch (error: any) {
-			return throw_error(res, error);
+			return handle_error(res, error);
+		}
+	}
+
+	async update_self(req: Request, res: Response): Promise<Response<any>> {
+		try {
+			const body = req.body;
+
+			const store: IStoreDocument = res.locals.store;
+
+			const store_id = store._id;
+
+			if (!store_id) {
+				throw new HttpException(400, "STORE_NOT_FOUND");
+			}
+
+			const store_updated = await StoresModel.findOneAndUpdate(
+				{ _id: store_id },
+				body,
+				{
+					new: true,
+				}
+			);
+
+			return res.status(201).json(store_updated);
+		} catch (error: any) {
+			return handle_error(res, error);
 		}
 	}
 
@@ -82,7 +118,7 @@ class StoresRepository {
 
 			return res.status(204).json(null);
 		} catch (error: any) {
-			return throw_error(res, error);
+			return handle_error(res, error);
 		}
 	}
 
@@ -90,15 +126,17 @@ class StoresRepository {
 		try {
 			return res.status(200).json({});
 		} catch (error: any) {
-			return throw_error(res, error);
+			return handle_error(res, error);
 		}
 	}
 
 	async profile(req: Request, res: Response): Promise<Response<any>> {
 		try {
-			return res.status(200).json({});
+			const store: IStoreDocument = res.locals.store;
+
+			return res.status(200).json(store);
 		} catch (error: any) {
-			return throw_error(res, error);
+			return handle_error(res, error);
 		}
 	}
 }

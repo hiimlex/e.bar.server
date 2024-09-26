@@ -1,4 +1,4 @@
-import { Collections } from "@types";
+import { Collections } from "types";
 import {  Document,InferSchemaType, model, Model, Schema, Types } from "mongoose";
 import { AddressSchema } from "../address";
 
@@ -18,7 +18,7 @@ const StoreSchema = new Schema(
 			required: true,
 		},
 		phone: {
-			type: String,
+			type: Number,
 			required: true,
 		},
 		email: {

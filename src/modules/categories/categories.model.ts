@@ -1,10 +1,10 @@
-import { Collections } from "@types";
+import { Collections } from "types";
 import { InferSchemaType, model, Schema, Document, Model, Types } from "mongoose";
 
 const CategorySchema = new Schema(
 	{
 		_id: { type: Schema.ObjectId, auto: true, required: true },
-		store_id: {
+		store: {
 			type: Schema.ObjectId,
 			ref: Collections.Stores,
 			required: true,

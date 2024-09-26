@@ -1,13 +1,12 @@
 import { TStore } from "@modules/stores";
 import { Types } from "mongoose";
+import { faker } from "@faker-js/faker";
 
-export const mockStoreId = new Types.ObjectId();
-
-export const mockStore: TStore = {
-	name: "Store Name",
-	bio: "Store Bio",
-	phone: "Store Phone",
-	email: "Store Email",
+export const create_mock_store: () => TStore = () => ({
+	name: faker.person.fullName(),
+	email: faker.internet.email(),
+	phone: +faker.number.binary(255),
+	bio: faker.lorem.paragraph(),
 	password: "Store Password",
 	address: {
 		cep: 12345678,
@@ -22,5 +21,5 @@ export const mockStore: TStore = {
 	enabled: false,
 	createdAt: new Date(),
 	updatedAt: new Date(),
-	_id: mockStoreId,
-};
+	_id: new Types.ObjectId(),
+});

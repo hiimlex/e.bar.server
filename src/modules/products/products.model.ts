@@ -1,4 +1,4 @@
-import { Collections } from "@types";
+import { Collections } from "types";
 import { Document, InferSchemaType, model, Model, Schema, Types } from "mongoose";
 
 const ProductSchema = new Schema(
@@ -16,12 +16,12 @@ const ProductSchema = new Schema(
 			type: Number,
 			required: true,
 		},
-		category_id: {
+		category: {
 			type: Schema.Types.ObjectId,
 			ref: Collections.Categories,
 			required: true,
 		},
-		store_id: {
+		store: {
 			type: Schema.ObjectId,
 			ref: Collections.Stores,
 			required: true,

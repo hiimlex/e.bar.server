@@ -12,11 +12,11 @@
 			"@modules/*": ["./modules/*"],
 			"@core/*": ["./core/*"],
 			"@utils/*": ["./utils/*"],
-			"@types/*": ["./@types/*"],
+			"types/*": ["./@types/*"],
 			"@modules": ["./modules/"],
 			"@core": ["./core/"],
 			"@utils": ["./utils/"],
-			"@types": ["./@types/"]
+			"types": ["./@types"]
 		}
 	},
 	"include": ["./src/**/*"],

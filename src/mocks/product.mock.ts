@@ -1,20 +1,16 @@
+import { faker } from "@faker-js/faker/.";
 import { TProduct } from "@modules";
 import { Types } from "mongoose";
-import { mockStoreId } from "./store.mock";
-import { mockCategoryId } from "./category.mock";
 
-export const mockProductId = new Types.ObjectId();
-
-export const mockProduct: TProduct = {
-	_id: mockProductId,
-	category_id: mockCategoryId,
-	store_id: mockStoreId,
-	description: "Description",
-	name: "Product Mock",
-	picture: "https://example.com",
-	price: 100,
-	quantity: 10,
+export const create_mock_product: () => Omit<TProduct, "_id"> = () => ({
+	category: new Types.ObjectId(),
+	store: new Types.ObjectId(),
+	description: faker.lorem.lines(),
+	name: faker.commerce.productName(),
+	picture: faker.image.url(),
+	price: +faker.commerce.price(),
+	quantity: +faker.commerce.price(),
 	createdAt: new Date(),
 	enabled: true,
 	updatedAt: new Date(),
-};
+});

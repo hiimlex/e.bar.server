@@ -1,4 +1,3 @@
-import { AuthController, ProductsController, StoresController } from "@modules";
 import { json } from "body-parser";
 import cors from "cors";
 import express, { Application } from "express";
@@ -7,7 +6,6 @@ import { routers } from "./routes";
 export class Server {
 	app!: Application;
 	port!: number | string;
-	private mong!: typeof mongoose;
 
 	constructor(port: number | string) {
 		this.app = express();
@@ -39,22 +37,22 @@ export class Server {
 	}
 
 	private async connect_mongo_db(): Promise<void> {
-		try {
-			this.mong = await mongoose.connect(process.env.DB_URL || "");
+		if (process.env.NODE_ENV !== "test") {
+			try {
+				await mongoose.connect(process.env.DB_URL || "");
 
-			console.log("Connected to MongoDB");
-		} catch (error) {
-			console.error("Error connecting to MongoDB: ", error);
+				console.log("Connected to MongoDB");
+			} catch (error) {
+				console.error("Error connecting to MongoDB: ", error);
+			}
 		}
 	}
 
 	async close_mongo_db(): Promise<void> {
-		if (this.mong) {
-			try {
-				await this.mong.connection.close();
-			} catch (error) {
-				console.error("Error closing MongoDB connection: ", error);
-			}
+		try {
+			await mongoose.disconnect();
+		} catch (error) {
+			console.error("Error closing MongoDB connection: ", error);
 		}
 	}
 }
