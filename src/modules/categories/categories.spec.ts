@@ -57,6 +57,30 @@ describe(`POST  ${Endpoints.CategoryCreate}`, () => {
 
 		expect(res.body).toBeTruthy();
 	});
+
+	it("should return error if name is not provided", async () => {
+		const mock_category = create_mock_category();
+
+		const res = await test_server
+			.post(Endpoints.CategoryCreate)
+			.set("Authorization", `Bearer ${access_token}`)
+			.send({ ...mock_category, name: undefined });
+
+		expect(res.statusCode).toBe(400);
+		expect(res.body).toBeTruthy();
+	});
+
+	it("should return error if store is not authenticated", async () => {
+		const mock_category = create_mock_category();
+
+		const res = await test_server
+			.post(Endpoints.CategoryCreate)
+			.set("Authorization", `Bearer invalid_token`)
+			.send({ ...mock_category });
+
+		expect(res.statusCode).toBe(401);
+		expect(res.body).toBeTruthy();
+	});
 });
 
 describe(`GET  ${Endpoints.CategoryCreate}`, () => {
