@@ -16,13 +16,13 @@ const ProductSchema = new Schema(
 			type: Number,
 			required: true,
 		},
-		category: {
+		category_id: {
 			type: Schema.Types.ObjectId,
 			ref: Collections.Categories,
 			required: true,
 		},
 		store_id: {
-			type: Schema.Types.ObjectId,
+			type: Schema.ObjectId,
 			ref: Collections.Stores,
 			required: true,
 		},

@@ -3,6 +3,7 @@ import { json } from "body-parser";
 import cors from "cors";
 import express, { Application } from "express";
 import mongoose from "mongoose";
+import { routers } from "./routes";
 export class Server {
 	app!: Application;
 	port!: number | string;
@@ -19,19 +20,17 @@ export class Server {
 	}
 
 	start(): void {
-		this.app.listen(this.port, () => {
-			console.log(`Server started at port ${this.port}`);
-		});
+		if (process.env.NODE_ENV !== "test") {
+			this.app.listen(this.port, () => {
+				console.log(`Server started at port ${this.port}`);
+			});
+		}
 	}
 
 	private init_routes(): void {
-		const auth_controller = new AuthController();
-		const stores_controller = new StoresController();
-		const products_controller = new ProductsController();
-
-		this.app.use(auth_controller.router);
-		this.app.use(stores_controller.router);
-		this.app.use(products_controller.router);
+		routers.forEach((router) => {
+			this.app.use(router);
+		});
 	}
 
 	private set_middlewares(): void {

@@ -44,7 +44,7 @@ describe("Store test", () => {
 			const res = await st(server.app).get(
 				`${Endpoints.StoreListById.replace(
 					":id",
-					createdStore._id?.toString() || ""
+					createdStore._id.toString()
 				)}`
 			);
 
@@ -83,10 +83,7 @@ describe("Store test", () => {
 		it("should change store enabled to true", async () => {
 			const res = await st(server.app)
 				.put(
-					`${Endpoints.StoreUpdate.replace(
-						":id",
-						createdStore._id?.toString() || ""
-					)}`
+					`${Endpoints.StoreUpdate.replace(":id", createdStore._id.toString())}`
 				)
 				.send({ enabled: true });
 
@@ -107,10 +104,7 @@ describe("Store test", () => {
 
 		it("should delete a store", async () => {
 			const res = await st(server.app).delete(
-				`${Endpoints.StoreDelete.replace(
-					":id",
-					createdStore._id?.toString() || ""
-				)}`
+				`${Endpoints.StoreDelete.replace(":id", createdStore._id.toString())}`
 			);
 
 			expect(res.statusCode).toBe(204);

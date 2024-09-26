@@ -1,6 +1,8 @@
 import { TStore } from "@modules/stores";
 import { Types } from "mongoose";
 
+export const mockStoreId = new Types.ObjectId();
+
 export const mockStore: TStore = {
 	name: "Store Name",
 	bio: "Store Bio",
@@ -20,5 +22,5 @@ export const mockStore: TStore = {
 	enabled: false,
 	createdAt: new Date(),
 	updatedAt: new Date(),
-	_id: new Types.ObjectId(),
+	_id: mockStoreId,
 };

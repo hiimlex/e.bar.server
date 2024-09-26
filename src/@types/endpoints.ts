@@ -23,7 +23,7 @@ export enum Endpoints {
 	// Categories
 	CategoryCreate = "/api/categories",
 	CategoryList = "/api/categories",
-	CategoryListByStoreId = "/api/categories/:storeId",
+	CategoryListByStoreId = "/api/categories/:store_id",
 	CategoryUpdate = "/api/categories/:id",
 	CategoryDelete = "/api/categories/:id",
 

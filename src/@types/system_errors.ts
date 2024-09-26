@@ -3,6 +3,8 @@ export enum SystemErrors {
 	INVALID_CEP,
 	STORE_NOT_FOUND,
 	ID_NOT_PROVIDED,
+	CATEGORY_NOT_FOUND,
+	PRODUCT_NOT_FOUND,
 }
 
 export type TSystemErrors = keyof typeof SystemErrors;

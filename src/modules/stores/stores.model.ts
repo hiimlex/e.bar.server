@@ -1,5 +1,5 @@
-import { ObjectId, InferSchemaType, model, Model, Schema } from "mongoose";
 import { Collections } from "@types";
+import {  Document,InferSchemaType, model, Model, Schema, Types } from "mongoose";
 import { AddressSchema } from "../address";
 
 const StoreSchema = new Schema(
@@ -7,6 +7,7 @@ const StoreSchema = new Schema(
 		_id: {
 			type: Schema.ObjectId,
 			auto: true,
+			required: true,
 		},
 		name: {
 			type: String,
@@ -53,7 +54,7 @@ const StoreSchema = new Schema(
 
 type TStore = InferSchemaType<typeof StoreSchema>;
 
-interface IStoreDocument extends Document, TStore {
+interface IStoreDocument extends Document<Types.ObjectId>, TStore {
 	populateAll(): Promise<IStoreDocument>;
 }
 
@@ -88,4 +89,5 @@ const StoresModel: IStoresModel = model<IStoreDocument, IStoresModel>(
 	StoreSchema
 );
 
-export { TStore, IStoreDocument, IStoresModel, StoresModel };
+export { IStoreDocument, IStoresModel, StoresModel, TStore };
+
