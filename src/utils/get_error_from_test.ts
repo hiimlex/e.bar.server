@@ -1,14 +1,11 @@
-import { HTTPError } from "types/index";
+import { DEFAULT_SERVER_ERROR, HTTPError } from "types";
 
 export function get_error_from_test(error: false | HTTPError): {
 	statusCode: number;
 	message: string;
 } {
 	if (!error) {
-		return {
-			statusCode: 500,
-			message: "An error occurred",
-		};
+		return DEFAULT_SERVER_ERROR;
 	}
 
 	return JSON.parse(error.text).message;

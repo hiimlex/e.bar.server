@@ -9,14 +9,14 @@
 		"outDir": "dist",
 		"baseUrl": "./src",
 		"paths": {
-			"@modules/*": ["./modules/*"],
-			"@core/*": ["./core/*"],
-			"@utils/*": ["./utils/*"],
-			"types/*": ["./@types/*"],
 			"@modules": ["./modules/"],
 			"@core": ["./core/"],
 			"@utils": ["./utils/"],
-			"types": ["./@types"]
+			"types": ["./@types"],
+			"@modules/*": ["./modules/*"],
+			"@core/*": ["./core/*"],
+			"@utils/*": ["./utils/*"],
+			"types/*": ["./@types/*"]
 		}
 	},
 	"include": ["./src/**/*"],

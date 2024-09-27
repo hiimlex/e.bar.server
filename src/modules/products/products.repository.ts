@@ -1,6 +1,8 @@
 import { handle_error } from "@utils/handle_error";
 import { Request, Response } from "express";
 import { ProductsModel } from "./products.model";
+import { IStoreDocument } from "@modules/stores";
+import { HttpException } from "@core/server";
 
 class ProductsRepository {
 	async list(req: Request, res: Response): Promise<Response<null>> {
@@ -48,7 +50,30 @@ class ProductsRepository {
 
 	async update(req: Request, res: Response): Promise<Response<null>> {
 		try {
-			return res.status(200).json({});
+			const store: IStoreDocument = res.locals.store;
+			const { id } = req.params;
+
+			if (!id) {
+				throw new HttpException(400, "ID_NOT_PROVIDED");
+			}
+
+			const product = await ProductsModel.findById(id);
+
+			if (!product) {
+				throw new HttpException(404, "PRODUCT_NOT_FOUND");
+			}
+
+			if (!product.store.equals(store._id)) {
+				throw new HttpException(403, "FORBIDDEN");
+			}
+
+			const payload = req.body;
+
+			await product.updateOne(payload);
+
+			const updated_product = await ProductsModel.findById(id);
+
+			return res.status(201).json(updated_product);
 		} catch (error) {
 			return handle_error(res, error);
 		}
@@ -56,7 +81,26 @@ class ProductsRepository {
 
 	async delete(req: Request, res: Response): Promise<Response<null>> {
 		try {
-			return res.status(200).json({});
+			const store: IStoreDocument = res.locals.store;
+			const { id } = req.params;
+
+			if (!id) {
+				throw new HttpException(400, "ID_NOT_PROVIDED");
+			}
+
+			const product = await ProductsModel.findById(id);
+
+			if (!product) {
+				throw new HttpException(404, "PRODUCT_NOT_FOUND");
+			}
+
+			if (!product.store.equals(store._id)) {
+				throw new HttpException(403, "FORBIDDEN");
+			}
+
+			await product.deleteOne();
+
+			return res.status(204).json(null);
 		} catch (error) {
 			return handle_error(res, error);
 		}

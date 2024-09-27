@@ -5,7 +5,9 @@ module.exports = {
 	preset: "ts-jest",
 	testEnvironment: "node",
 	moduleNameMapper: {
-		...pathsToModuleNameMapper(compilerOptions.paths, {prefix: "<rootDir>/src/"}),
+		...pathsToModuleNameMapper(compilerOptions.paths, {
+			prefix: "<rootDir>/src/",
+		}),
 		"^@modules$": "<rootDir>/src/modules",
 		"^@types$": "<rootDir>/src/@types",
 		"^@core$": "<rootDir>/src/core",
@@ -13,5 +15,6 @@ module.exports = {
 	},
 	modulePaths: ["<rootDir>/src"],
 	setupFiles: ["<rootDir>/jest.setup.js"],
-	testTimeout: 15000
+	testTimeout: 15000,
+	coverageReporters: ["text", "text-summary"],
 };
