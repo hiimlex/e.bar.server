@@ -1,7 +1,7 @@
 import { BaseController } from "@core";
 import { Endpoints } from "types";
-import categoriesRepository from "./categories.repository";
-import { AuthRepository } from "..";
+import { CategoriesRepositoryImpl } from "./categories.repository";
+import { AuthRepositoryImpl } from "..";
 
 export class CategoriesController extends BaseController {
 	constructor() {
@@ -9,26 +9,26 @@ export class CategoriesController extends BaseController {
 	}
 
 	define_routes(): void {
-		this.router.get(Endpoints.CategoryList, categoriesRepository.list);
+		this.router.get(Endpoints.CategoryList, CategoriesRepositoryImpl.list);
 		this.router.get(
 			Endpoints.CategoryListByStoreId,
-			categoriesRepository.list_by_store_id
+			CategoriesRepositoryImpl.list_by_store_id
 		);
 
 		this.router.post(
 			Endpoints.CategoryCreate,
-			AuthRepository.is_store,
-			categoriesRepository.create
+			AuthRepositoryImpl.is_store,
+			CategoriesRepositoryImpl.create
 		);
 		this.router.put(
 			Endpoints.CategoryUpdate,
-			AuthRepository.is_store,
-			categoriesRepository.update
+			AuthRepositoryImpl.is_store,
+			CategoriesRepositoryImpl.update
 		);
 		this.router.delete(
 			Endpoints.CategoryDelete,
-			AuthRepository.is_store,
-			categoriesRepository.delete
+			AuthRepositoryImpl.is_store,
+			CategoriesRepositoryImpl.delete
 		);
 	}
 }

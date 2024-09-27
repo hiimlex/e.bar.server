@@ -1,7 +1,7 @@
 import { BaseController } from "@core";
 import { Endpoints } from "types";
-import storesRepository from "./stores.repository";
-import { AuthRepository } from "../auth";
+import { StoresRepositoryImpl } from "./stores.repository";
+import { AuthRepositoryImpl } from "../auth";
 
 export class StoresController extends BaseController {
 	constructor() {
@@ -9,22 +9,20 @@ export class StoresController extends BaseController {
 	}
 
 	define_routes(): void {
-		this.router.get(Endpoints.StoreList, storesRepository.list);
+		this.router.get(Endpoints.StoreList, StoresRepositoryImpl.list);
 		this.router.get(
 			Endpoints.StoreProfile,
-			AuthRepository.is_store,
-			storesRepository.profile
+			AuthRepositoryImpl.is_store,
+			StoresRepositoryImpl.profile
 		);
-		this.router.get(Endpoints.StoreListById, storesRepository.list_by_id);
-		this.router.post(Endpoints.StoreCreate, storesRepository.create);
-		this.router.put(Endpoints.StoreUpdate, storesRepository.update);
-		this.router.delete(Endpoints.StoreDelete, storesRepository.delete);
-
 		this.router.get(
 			Endpoints.StoreListProducts,
-			storesRepository.list_products
+			StoresRepositoryImpl.list_products
 		);
-
-	
+		this.router.get(Endpoints.StoreListById, StoresRepositoryImpl.list_by_id);
+		
+		this.router.post(Endpoints.StoreCreate, StoresRepositoryImpl.create);
+		this.router.put(Endpoints.StoreUpdate, StoresRepositoryImpl.update);
+		this.router.delete(Endpoints.StoreDelete, StoresRepositoryImpl.delete);
 	}
 }

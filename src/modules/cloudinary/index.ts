@@ -1,1 +1,2 @@
-export * from "./cloudinary.service";
+export * from "./cloudinary.repository";
+export * from "./upload.controller";

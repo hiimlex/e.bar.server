@@ -107,4 +107,6 @@ class ProductsRepository {
 	}
 }
 
-export default new ProductsRepository();
+const ProductsRepositoryImpl = new ProductsRepository();
+
+export { ProductsRepositoryImpl };

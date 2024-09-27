@@ -54,4 +54,7 @@ export enum Endpoints {
 	TableList = "/api/tables",
 	TableListById = "/api/tables/:id",
 	TableUpdate = "/api/tables/:id",
+
+	// Test
+	TestUpload = "/api/test/upload",
 }
