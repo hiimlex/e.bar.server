@@ -7,7 +7,7 @@ import { Endpoints } from "types";
 import { TStore } from "../stores";
 import { Request, Response } from "express";
 import { mock_request, mock_response } from "mocks";
-import ProductsRepository from "./products.repository";
+import { ProductsRepositoryImpl } from "./products.repository";
 
 const test_server = st(server.app);
 let mongo_server: MongoMemoryServer;
@@ -50,6 +50,7 @@ afterAll(async () => {
 describe(`POST /api/products/`, () => {
 	it("should create a product", async () => {
 		const mock_product = create_mock_product();
+		const buffer = Buffer.from("test");
 		const res = await test_server
 			.post(Endpoints.ProductCreate)
 			.set("Authorization", `Bearer ${access_token}`)
@@ -261,7 +262,7 @@ describe("DELETE /api/products/:id", () => {
 	});
 });
 
-describe("ProductsRepository class", () => {
+describe("ProductsRepositoryImpl class", () => {
 	let res: Response;
 	let req: Request;
 
@@ -278,7 +279,7 @@ describe("ProductsRepository class", () => {
 
 	describe("list", () => {
 		it("should return 200 with a list of products", async () => {
-			await ProductsRepository.list(req, res);
+			await ProductsRepositoryImpl.list(req, res);
 
 			expect(res.status).toHaveBeenCalledWith(200);
 			expect(res.json).toHaveBeenCalled();
@@ -295,7 +296,7 @@ describe("ProductsRepository class", () => {
 			});
 			res.locals = { store: created_store };
 
-			await ProductsRepository.create(req, res);
+			await ProductsRepositoryImpl.create(req, res);
 
 			expect(res.status).toHaveBeenCalledWith(201);
 			expect(res.json).toHaveBeenCalled();
@@ -304,7 +305,7 @@ describe("ProductsRepository class", () => {
 		it("should return 400 if name is not provided", async () => {
 			req.body = create_mock_product();
 			req.body.name = undefined;
-			await ProductsRepository.create(req, res);
+			await ProductsRepositoryImpl.create(req, res);
 
 			expect(res.status).toHaveBeenCalledWith(400);
 			expect(res.json).toHaveBeenCalled();
@@ -324,7 +325,7 @@ describe("ProductsRepository class", () => {
 			req.body = new_mock;
 			res.locals = { store: created_store };
 
-			await ProductsRepository.update(req, res);
+			await ProductsRepositoryImpl.update(req, res);
 
 			expect(res.status).toHaveBeenCalledWith(201);
 			expect(res.json).toHaveBeenCalled();
@@ -341,12 +342,12 @@ describe("ProductsRepository class", () => {
 
 			req.params = { id: c_product.body._id };
 
-			await ProductsRepository.list_by_id(req, res);
+			await ProductsRepositoryImpl.list_by_id(req, res);
 
 			expect(res.status).toHaveBeenCalledWith(200);
 			expect(res.json).toHaveBeenCalled();
 		});
-	})
+	});
 
 	describe("delete", () => {
 		it("should delete a product", async () => {
@@ -359,13 +360,13 @@ describe("ProductsRepository class", () => {
 			req.params = { id: c_product.body._id };
 			res.locals = { store: created_store };
 
-			await ProductsRepository.delete(req, res);
+			await ProductsRepositoryImpl.delete(req, res);
 
 			expect(res.status).toHaveBeenCalledWith(204);
 		});
 
 		it("should return error if id is not provided", async () => {
-			await ProductsRepository.delete(req, res);
+			await ProductsRepositoryImpl.delete(req, res);
 
 			expect(res.status).toHaveBeenCalledWith(400);
 		});
@@ -391,7 +392,7 @@ describe("ProductsRepository class", () => {
 
 			req.params = { id: c_product.body._id };
 
-			await ProductsRepository.delete(req, res);
+			await ProductsRepositoryImpl.delete(req, res);
 
 			expect(res.status).toHaveBeenCalledWith(403);
 		});
@@ -399,7 +400,7 @@ describe("ProductsRepository class", () => {
 		it("should return error if product is not found", async () => {
 			req.params = { id: "123" };
 
-			await ProductsRepository.delete(req, res);
+			await ProductsRepositoryImpl.delete(req, res);
 
 			expect(res.status).toHaveBeenCalledWith(400);
 		});

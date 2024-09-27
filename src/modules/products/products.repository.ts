@@ -1,8 +1,10 @@
+import { HttpException } from "@core/server";
+import { IStoreDocument } from "@modules/stores";
 import { handle_error } from "@utils/handle_error";
 import { Request, Response } from "express";
+import { TUploadedFile } from "types/files";
+import { TFile } from "../cloudinary";
 import { ProductsModel } from "./products.model";
-import { IStoreDocument } from "@modules/stores";
-import { HttpException } from "@core/server";
 
 class ProductsRepository {
 	async list(req: Request, res: Response): Promise<Response<null>> {
@@ -34,8 +36,17 @@ class ProductsRepository {
 	async create(req: Request, res: Response): Promise<Response<null>> {
 		try {
 			const store = res.locals.store;
-
+			const file = req.file as TUploadedFile;
 			const payload = req.body;
+
+			if (file) {
+				const picture: TFile = {
+					url: file.path,
+					original_name: file.originalname,
+				};
+
+				payload.picture = picture;
+			}
 
 			const new_product = await ProductsModel.create({
 				...payload,

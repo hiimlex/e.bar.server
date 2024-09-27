@@ -1,5 +1,13 @@
 import { Collections } from "types";
-import { Document, InferSchemaType, model, Model, Schema, Types } from "mongoose";
+import {
+	Document,
+	InferSchemaType,
+	model,
+	Model,
+	Schema,
+	Types,
+} from "mongoose";
+import { FileSchema } from "../cloudinary";
 
 const ProductSchema = new Schema(
 	{
@@ -31,8 +39,7 @@ const ProductSchema = new Schema(
 			default: true,
 		},
 		picture: {
-			type: String,
-			required: true,
+			type: FileSchema,
 		},
 		price: {
 			type: Number,
@@ -55,9 +62,15 @@ interface IProductDocument extends Document<Types.ObjectId>, TProduct {}
 
 interface IProductsModel extends Model<IProductDocument> {}
 
-const ProductsModel: IProductsModel = model<
-	IProductDocument,
-	IProductsModel
->(Collections.Products, ProductSchema);
+const ProductsModel: IProductsModel = model<IProductDocument, IProductsModel>(
+	Collections.Products,
+	ProductSchema
+);
 
-export {ProductSchema, ProductsModel, IProductDocument, IProductsModel, TProduct};
+export {
+	ProductSchema,
+	ProductsModel,
+	IProductDocument,
+	IProductsModel,
+	TProduct,
+};
