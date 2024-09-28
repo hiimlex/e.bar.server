@@ -104,4 +104,6 @@ class CategoriesRepository {
 	}
 }
 
-export default new CategoriesRepository();
+const CategoriesRepositoryImpl = new CategoriesRepository();
+
+export { CategoriesRepositoryImpl };

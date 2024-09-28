@@ -15,6 +15,8 @@ export enum SystemErrors {
 	// Store
 	STORE_NOT_FOUND,
 	STORE_NOT_CREATED,
+	// Files
+	FILE_NOT_FOUND
 }
 
 export type TSystemErrors = keyof typeof SystemErrors;

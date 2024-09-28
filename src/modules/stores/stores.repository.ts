@@ -141,4 +141,6 @@ class StoresRepository {
 	}
 }
 
-export default new StoresRepository();
+const StoresRepositoryImpl = new StoresRepository();
+
+export { StoresRepositoryImpl };

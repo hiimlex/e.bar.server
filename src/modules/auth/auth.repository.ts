@@ -141,4 +141,6 @@ class AuthRepository {
 	}
 }
 
-export default new AuthRepository();
+const AuthRepositoryImpl = new AuthRepository();
+
+export { AuthRepositoryImpl };
