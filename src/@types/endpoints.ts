@@ -32,6 +32,7 @@ export enum Endpoints {
 	// Waiters
 	WaiterCreate = "/api/waiters",
 	WaiterList = "/api/waiters",
+	WaiterProfile = "/api/waiters/profile",
 	WaiterListById = "/api/waiters/:id",
 	WaiterUpdate = "/api/waiters/:id",
 	WaiterDelete = "/api/waiters/:id",
