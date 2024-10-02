@@ -1,12 +1,12 @@
 import { TStore } from "@modules";
-import { create_mock_store } from "mocks";
+import { create_mock_store, create_mock_waiter } from "mocks";
+import { MongoMemoryServer } from "mongodb-memory-server";
 import mongoose from "mongoose";
 import st from "supertest";
 import { Endpoints } from "types";
-import { server } from "../../app";
-import { MongoMemoryServer } from "mongodb-memory-server";
+import { server, test_agent } from "../../app";
 
-let test_server = st(server.app);
+let test_server = test_agent;
 let mongo_server: MongoMemoryServer;
 let mock_store: TStore = create_mock_store();
 let created_store: TStore;
@@ -43,9 +43,10 @@ afterAll(async () => {
 	await mongoose.disconnect();
 	await mongo_server.stop();
 });
-describe(`POST ${Endpoints.AuthLogin}`, () => {
+
+describe("POST /api/auth/login", () => {
 	it("should login an store", async () => {
-		const res = await st(server.app).post(Endpoints.AuthLogin).send({
+		const res = await test_server.post(Endpoints.AuthLogin).send({
 			email: mock_store.email,
 			password: mock_store.password,
 		});
@@ -53,12 +54,31 @@ describe(`POST ${Endpoints.AuthLogin}`, () => {
 		expect(res.status).toBe(200);
 		expect(res.body).toHaveProperty("access_token");
 		expect(res.body).toHaveProperty("is_store");
+		expect(res.body.is_store).toBeTruthy();
+	});
+
+	it("should login a waiter", async () => {
+		const mock_waiter = create_mock_waiter();
+		await test_server
+			.post(Endpoints.WaiterCreate)
+			.send(mock_waiter)
+			.set("Authorization", `Bearer ${access_token}`);
+
+		const res = await test_server.post(Endpoints.AuthLogin).send({
+			email: mock_waiter.email,
+			password: mock_waiter.password,
+		});
+
+		expect(res.statusCode).toBe(200);
+		expect(res.body).toHaveProperty("access_token");
+		expect(res.body).toHaveProperty("is_store");
+		expect(res.body.is_store).toBeFalsy();
 	});
 });
 
-describe(`GET ${Endpoints.AuthGetStore}`, () => {
+describe("GET /api/auth/get-store", () => {
 	it("should get store by token", async () => {
-		const res = await st(server.app)
+		const res = await test_server
 			.get(Endpoints.AuthGetStore)
 			.set("Authorization", `Bearer ${access_token}`);
 
@@ -69,7 +89,7 @@ describe(`GET ${Endpoints.AuthGetStore}`, () => {
 	});
 
 	it("should get an error if token is invalid", async () => {
-		const res = await st(server.app)
+		const res = await test_server
 			.get(Endpoints.AuthGetStore)
 			.set("Authorization", `invalid_token`);
 
@@ -77,8 +97,10 @@ describe(`GET ${Endpoints.AuthGetStore}`, () => {
 	});
 
 	it("should get an error if authorization header is missing", async () => {
-		const res = await st(server.app).get(Endpoints.AuthGetStore);
+		const res = await test_server.get(Endpoints.AuthGetStore);
 
 		expect(res.status).toBe(401);
 	});
 });
+
+describe("GET /api/auth/waiter", () => {});

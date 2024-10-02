@@ -2,7 +2,9 @@ import { json } from "body-parser";
 import cors from "cors";
 import express, { Application } from "express";
 import mongoose from "mongoose";
+import cookieParser from "cookie-parser";
 import { routers } from "./routes";
+import { JWT_SECRET } from "types";
 export class Server {
 	app!: Application;
 	port!: number | string;
@@ -34,6 +36,7 @@ export class Server {
 	private set_middlewares(): void {
 		this.app.use(json());
 		this.app.use(cors());
+		this.app.use(cookieParser(JWT_SECRET));
 	}
 
 	private async connect_mongo_db(): Promise<void> {

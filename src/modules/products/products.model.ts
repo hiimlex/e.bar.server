@@ -1,4 +1,4 @@
-import { Collections } from "types";
+import { timestamps } from "@core/index";
 import {
 	Document,
 	InferSchemaType,
@@ -7,6 +7,7 @@ import {
 	Schema,
 	Types,
 } from "mongoose";
+import { Collections } from "types";
 import { FileSchema } from "../cloudinary";
 
 const ProductSchema = new Schema(
@@ -20,7 +21,7 @@ const ProductSchema = new Schema(
 			type: String,
 			required: true,
 		},
-		quantity: {
+		stock: {
 			type: Number,
 			required: true,
 		},
@@ -45,22 +46,38 @@ const ProductSchema = new Schema(
 			type: Number,
 			required: true,
 		},
-		description: {
-			type: String,
-		},
 	},
 	{
 		versionKey: false,
-		timestamps: true,
 		collection: Collections.Products,
+		timestamps,
+		toJSON: {
+			virtuals: true,
+		},
+		toObject: {
+			virtuals: true,
+		},
 	}
 );
 
 type TProduct = InferSchemaType<typeof ProductSchema>;
 
-interface IProductDocument extends Document<Types.ObjectId>, TProduct {}
+interface IProductDocument extends Document<Types.ObjectId>, TProduct {
+	populate_all: () => Promise<IProductDocument>;
+}
 
-interface IProductsModel extends Model<IProductDocument> {}
+interface IProductsModelMethods {
+	populate_all: () => Promise<IProductDocument>;
+}
+
+interface IProductsModel
+	extends Model<IProductDocument, {}, IProductsModelMethods> {}
+
+ProductSchema.methods.populate_all = async function (this: IProductDocument) {
+	await this.populate("category");
+
+	return;
+};
 
 const ProductsModel: IProductsModel = model<IProductDocument, IProductsModel>(
 	Collections.Products,
@@ -68,9 +85,9 @@ const ProductsModel: IProductsModel = model<IProductDocument, IProductsModel>(
 );
 
 export {
-	ProductSchema,
-	ProductsModel,
 	IProductDocument,
 	IProductsModel,
+	ProductSchema,
+	ProductsModel,
 	TProduct,
 };

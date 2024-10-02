@@ -1,6 +1,16 @@
 import { Collections } from "types";
-import {  Document,InferSchemaType, model, Model, Schema, Types } from "mongoose";
+import {
+	Document,
+	InferSchemaType,
+	model,
+	Model,
+	Schema,
+	Types,
+} from "mongoose";
 import { AddressSchema } from "../address";
+import { FileSchema } from "@modules/cloudinary";
+import { AttendancesModel, AttendanceStatus } from "@modules/attendances";
+import { timestamps } from "@core/index";
 
 const StoreSchema = new Schema(
 	{
@@ -29,14 +39,12 @@ const StoreSchema = new Schema(
 			type: String,
 			required: true,
 		},
-		// avatar: {
-		// 	type: String,
-		// 	default: "",
-		// },
-		// files: {
-		// 	type: [String],
-		// 	default: [],
-		// },
+		avatar: {
+			type: FileSchema,
+		},
+		thumbnail: {
+			type: FileSchema,
+		},
 		address: {
 			type: AddressSchema,
 		},
@@ -47,7 +55,7 @@ const StoreSchema = new Schema(
 	},
 	{
 		versionKey: false,
-		timestamps: true,
+		timestamps,
 		collection: Collections.Stores,
 	}
 );
@@ -55,31 +63,49 @@ const StoreSchema = new Schema(
 type TStore = InferSchemaType<typeof StoreSchema>;
 
 interface IStoreDocument extends Document<Types.ObjectId>, TStore {
-	populateAll(): Promise<IStoreDocument>;
+	populate_all(): Promise<IStoreDocument>;
+	has_active_attendance(): Promise<boolean>;
 }
 
-interface IStoreMethods {}
+interface IAttendanceMethods {}
 
-interface IStoresModel extends Model<IStoreDocument, IStoreMethods> {
-	populateAll(): Promise<IStoresModel>;
+interface IStoreMethods {
+	populate_all(): Promise<IStoreDocument>;
+	has_active_attendance(): Promise<boolean>;
+}
+
+interface IStoresModel extends Model<IStoreDocument, {}, IStoreMethods> {
+	// populateAll(): Promise<IStoresModel>;
 }
 
 // StoreSchema.plugin(uniqueValidator, { message: "{PATH} já está em uso." });
 
-// StoreSchema.methods.toJSON = function (): TStore {
-// 	const barber = this.toObject();
+StoreSchema.methods.toJSON = function (): TStore {
+	const { password, ...store } = this.toObject();
 
-// 	return barber;
-// };
+	return store;
+};
 
-StoreSchema.methods.populateAll = async function (): Promise<IStoreDocument> {
+StoreSchema.methods.populate_all = async function (): Promise<IStoreDocument> {
 	// await this.populate("avatar");
 
 	return this as IStoreDocument;
 };
 
+StoreSchema.methods.has_active_attendance =
+	async function (): Promise<boolean> {
+		const store = this as IStoreDocument;
+
+		const attendance = await AttendancesModel.findOne({
+			store: store._id,
+			status: AttendanceStatus.OPEN,
+		});
+
+		return !!attendance;
+	};
+
 StoreSchema.pre("save", async function (next) {
-	// const barber = this;
+	// const store = this;
 
 	next();
 });
@@ -90,4 +116,3 @@ const StoresModel: IStoresModel = model<IStoreDocument, IStoresModel>(
 );
 
 export { IStoreDocument, IStoresModel, StoresModel, TStore };
-

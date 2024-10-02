@@ -1,4 +1,4 @@
-import { DEFAULT_SERVER_ERROR } from "types";
+import { DEFAULT_CODE_LEN, DEFAULT_SERVER_ERROR } from "types";
 import { get_error_from_test } from "./get_error_from_test";
 
 import { HttpException } from "@core/server";
@@ -6,6 +6,7 @@ import { Request, Response } from "express";
 import { mock_request, mock_response } from "mocks";
 import { get_bearer_token } from "./get_bearer_token";
 import { handle_error } from "./handle_error";
+import { generate_random_code } from "./generate_random_code";
 
 describe("get_error_from_test function", () => {
 	it("should return 500 error", () => {
@@ -103,5 +104,17 @@ describe("get_bearer_token function", () => {
 		const result = get_bearer_token(req);
 
 		expect(result).toBeNull();
+	});
+
+	it("should generate a random code with the default length", () => {
+		const code = generate_random_code();
+
+		expect(code.length).toBe(DEFAULT_CODE_LEN);
+	});
+
+	it("should generate a random code with the specified length", () => {
+		const code = generate_random_code(10);
+
+		expect(code.length).toBe(10);
 	});
 });

@@ -1,12 +1,11 @@
-import { server } from "app";
-import { create_mock_store, create_mock_category } from "mocks";
+import { test_agent } from "app";
+import { create_mock_category, create_mock_store } from "mocks";
 import { MongoMemoryServer } from "mongodb-memory-server";
 import mongoose from "mongoose";
-import st from "supertest";
 import { Endpoints } from "types";
 import { TStore } from "../stores";
 
-let test_server = st(server.app);
+let test_server = test_agent;
 let mongo_server: MongoMemoryServer;
 let mock_store: TStore = create_mock_store();
 let created_store: TStore;

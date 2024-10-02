@@ -1,15 +1,18 @@
-import { server } from "app";
-import { create_mock_product, create_mock_store } from "mocks";
+import { test_agent } from "app";
+import { Request, Response } from "express";
+import {
+	create_mock_product,
+	create_mock_store,
+	mock_request,
+	mock_response,
+} from "mocks";
 import { MongoMemoryServer } from "mongodb-memory-server";
 import mongoose from "mongoose";
-import st from "supertest";
 import { Endpoints } from "types";
 import { TStore } from "../stores";
-import { Request, Response } from "express";
-import { mock_request, mock_response } from "mocks";
 import { ProductsRepositoryImpl } from "./products.repository";
 
-const test_server = st(server.app);
+const test_server = test_agent;
 let mongo_server: MongoMemoryServer;
 let mock_store: TStore = create_mock_store();
 let created_store: TStore;

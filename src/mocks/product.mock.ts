@@ -12,7 +12,7 @@ export const create_mock_product: () => Omit<TProduct, "_id"> = () => ({
 		original_name: faker.system.fileName(),
 	},
 	price: +faker.commerce.price(),
-	quantity: +faker.commerce.price(),
+	stock: +faker.commerce.price(),
 	createdAt: new Date(),
 	enabled: true,
 	updatedAt: new Date(),

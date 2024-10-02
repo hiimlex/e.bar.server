@@ -1,3 +1,4 @@
+import { timestamps } from "@core/index";
 import { Document, InferSchemaType, Model, Schema, Types, model } from "mongoose";
 import { Collections } from "types";
 
@@ -24,18 +25,19 @@ const TableSchema = new Schema(
 			type: Boolean,
 			default: false,
 		},
+		in_use_by: {
+			type: Schema.Types.ObjectId,
+			ref: Collections.Waiters,
+		},
 		store: {
 			type: Schema.Types.ObjectId,
 			ref: Collections.Stores,
 			required: true,
 		},
-		// in_use_by: {
-		// 	type:
-		// }
 	},
 	{
 		versionKey: false,
-		timestamps: true,
+		timestamps,
 		collection: Collections.Tables,
 	}
 );

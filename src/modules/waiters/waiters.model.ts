@@ -1,3 +1,5 @@
+import { timestamps } from "@core/index";
+import { FileSchema } from "@modules/cloudinary";
 import {
 	Document,
 	InferSchemaType,
@@ -19,7 +21,15 @@ const WaiterSchema = new Schema(
 			type: String,
 			required: true,
 		},
+		phone: {
+			type: Number,
+			required: true,
+		},
 		email: {
+			type: String,
+			required: true,
+		},
+		password: {
 			type: String,
 			required: true,
 		},
@@ -28,13 +38,26 @@ const WaiterSchema = new Schema(
 			ref: Collections.Stores,
 			required: true,
 		},
+		enabled: {
+			type: Boolean,
+			default: true,
+		},
+		avatar: {
+			type: FileSchema,
+		},
 	},
 	{
 		versionKey: false,
-		timestamps: true,
-		collection: Collections.Tables,
+		timestamps,
+		collection: Collections.Waiters,
 	}
 );
+
+WaiterSchema.methods.toJSON = function (): TWaiter {
+	const { password, ...waiter } = this.toObject();
+
+	return waiter;
+};
 
 type TWaiter = InferSchemaType<typeof WaiterSchema>;
 
@@ -42,9 +65,9 @@ interface IWaiterDocument extends Document<Types.ObjectId>, TWaiter {}
 
 interface IWaitersModel extends Model<IWaiterDocument> {}
 
-const TablesModel: IWaitersModel = model<IWaiterDocument, IWaitersModel>(
-	Collections.Tables,
+const WaitersModel: IWaitersModel = model<IWaiterDocument, IWaitersModel>(
+	Collections.Waiters,
 	WaiterSchema
 );
 
-export { WaiterSchema, TWaiter, IWaiterDocument, IWaitersModel, TablesModel };
+export { IWaiterDocument, IWaitersModel, TWaiter, WaitersModel, WaiterSchema };

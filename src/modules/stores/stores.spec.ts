@@ -3,9 +3,9 @@ import { MongoMemoryServer } from "mongodb-memory-server";
 import mongoose from "mongoose";
 import st from "supertest";
 import { Endpoints } from "types";
-import { server } from "../../app";
+import { server, test_agent } from "../../app";
 
-const test_server = st(server.app);
+const test_server = test_agent;
 let mongo_server: MongoMemoryServer;
 
 beforeAll(async () => {

@@ -4,11 +4,11 @@ export class HttpException extends Error {
 	message!: string;
 	status: number;
 
-	constructor(status: number, message: TSystemErrors | (string & {})) {
+	constructor(status: number, message: TSystemErrors) {
 		super();
 
-		if (SystemErrors[message as any]) {
-			super.message = SystemErrors[message as any];
+		if (SystemErrors[message]) {
+			super.message = SystemErrors[message];
 		}
 
 		this.message = message;

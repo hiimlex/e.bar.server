@@ -5,11 +5,34 @@ import { Request, Response } from "express";
 import { TUploadedFile } from "types/files";
 import { TFile } from "../cloudinary";
 import { ProductsModel } from "./products.model";
+import { Collections } from "types";
 
 class ProductsRepository {
 	async list(req: Request, res: Response): Promise<Response<null>> {
 		try {
-			const products = await ProductsModel.find();
+			const products = await ProductsModel.aggregate([
+				{
+					$lookup: {
+						from: Collections.Categories,
+						localField: "category",
+						foreignField: "_id",
+						as: "category_info",
+					},
+				},
+				{
+					$unwind: "$category_info",
+				},
+				{
+					$addFields: {
+						category_name: "$category_info.name",
+					},
+				},
+				{
+					$project: {
+						category_info: 0,
+					},
+				},
+			]);
 
 			return res.status(200).json({ content: products });
 		} catch (error) {
