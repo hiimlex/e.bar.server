@@ -2,9 +2,8 @@ import { TStore } from "@modules";
 import { create_mock_store, create_mock_waiter } from "mocks";
 import { MongoMemoryServer } from "mongodb-memory-server";
 import mongoose from "mongoose";
-import st from "supertest";
 import { Endpoints } from "types";
-import { server, test_agent } from "../../app";
+import { test_agent } from "../../app";
 
 let test_server = test_agent;
 let mongo_server: MongoMemoryServer;

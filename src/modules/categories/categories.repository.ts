@@ -1,13 +1,26 @@
 import { handle_error } from "@utils/handle_error";
 import { Request, Response } from "express";
-import { CategoriesModel } from "./categories.model";
+import { CategoriesModel } from "./categories.schema";
 import { HttpException } from "@core/server";
 import { IStoreDocument } from "..";
+import { IListCategoriesFilters, TCategory } from "types";
+import { RootFilterQuery } from "mongoose";
 
 class CategoriesRepository {
-	async list(req: Request, res: Response): Promise<Response<any>> {
+	async list(
+		req: Request<any, any, any, IListCategoriesFilters>,
+		res: Response
+	): Promise<Response<any>> {
 		try {
-			const categories = await CategoriesModel.find();
+			const { store_id } = req.query;
+
+			const query: RootFilterQuery<TCategory> = {};
+
+			if (store_id) {
+				query.store = store_id;
+			}
+
+			const categories = await CategoriesModel.find(query);
 
 			return res.status(200).json({ content: categories });
 		} catch (error) {

@@ -1,9 +1,8 @@
 import { create_mock_store } from "mocks";
 import { MongoMemoryServer } from "mongodb-memory-server";
 import mongoose from "mongoose";
-import st from "supertest";
 import { Endpoints } from "types";
-import { server, test_agent } from "../../app";
+import { test_agent } from "../../app";
 
 const test_server = test_agent;
 let mongo_server: MongoMemoryServer;

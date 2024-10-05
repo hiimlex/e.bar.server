@@ -84,7 +84,9 @@ describe(`POST  ${Endpoints.CategoryCreate}`, () => {
 
 describe(`GET  ${Endpoints.CategoryCreate}`, () => {
 	it("should list all categories", async () => {
-		const res = await test_server.get(Endpoints.CategoryList);
+		const res = await test_server
+			.get(Endpoints.CategoryList)
+			.set("Authorization", `Bearer ${access_token}`);
 
 		expect(res.statusCode).toBe(200);
 		expect(res.body).toBeTruthy();

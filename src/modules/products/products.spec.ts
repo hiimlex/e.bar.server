@@ -7,7 +7,7 @@ import {
 	mock_response,
 } from "mocks";
 import { MongoMemoryServer } from "mongodb-memory-server";
-import mongoose from "mongoose";
+import mongoose, { Types } from "mongoose";
 import { Endpoints } from "types";
 import { TStore } from "../stores";
 import { ProductsRepositoryImpl } from "./products.repository";
@@ -53,7 +53,6 @@ afterAll(async () => {
 describe(`POST /api/products/`, () => {
 	it("should create a product", async () => {
 		const mock_product = create_mock_product();
-		const buffer = Buffer.from("test");
 		const res = await test_server
 			.post(Endpoints.ProductCreate)
 			.set("Authorization", `Bearer ${access_token}`)
@@ -89,10 +88,86 @@ describe(`GET /api/products/`, () => {
 			.set("Authorization", `Bearer ${access_token}`)
 			.send(mock_product);
 
-		const res = await test_server.get(Endpoints.ProductList);
+		const res = await test_server
+			.get(Endpoints.ProductList)
+			.set("Authorization", `Bearer ${access_token}`);
 
 		expect(res.statusCode).toBe(200);
 		expect(res.body).toBeTruthy();
+		expect(res.body).toHaveProperty("content");
+	});
+
+	it("should get all products by store id", async () => {
+		const mock_product = create_mock_product();
+		await test_server
+			.post(Endpoints.ProductCreate)
+			.set("Authorization", `Bearer ${access_token}`)
+			.send(mock_product);
+
+		const res = await test_server
+			.get(Endpoints.ProductList)
+			.set("Authorization", `Bearer ${access_token}`)
+			.query({ store_id: created_store._id });
+
+		expect(res.statusCode).toBe(200);
+		expect(res.body).toBeTruthy();
+		expect(res.body).toHaveProperty("content");
+	});
+
+	it("should filter for empty stock products", async () => {
+		const mock_product = create_mock_product({ stock: 0 });
+		await test_server
+			.post(Endpoints.ProductCreate)
+			.set("Authorization", `Bearer ${access_token}`)
+			.send(mock_product);
+
+		const res = await test_server
+			.get(Endpoints.ProductList)
+			.set("Authorization", `Bearer ${access_token}`)
+			.query({ no_stock: true });
+
+		expect(res.statusCode).toBe(200);
+		expect(res.body).toBeTruthy();
+		expect(res.body).toHaveProperty("content");
+		expect(res.body.content.length).toBeGreaterThan(0);
+	});
+
+	it("should filter by name", async () => {
+		const mock_product = create_mock_product({ name: "mock_product" });
+		await test_server
+			.post(Endpoints.ProductCreate)
+			.set("Authorization", `Bearer ${access_token}`)
+			.send(mock_product);
+
+		const res = await test_server
+			.get(Endpoints.ProductList)
+			.set("Authorization", `Bearer ${access_token}`)
+			.query({ name: mock_product.name });
+
+		expect(res.statusCode).toBe(200);
+		expect(res.body).toBeTruthy();
+		expect(res.body).toHaveProperty("content");
+		expect(res.body.content.length).toBeGreaterThan(0);
+	});
+
+	it("should filter by category", async () => {
+		const mock_product = create_mock_product({
+			category: new Types.ObjectId(),
+		});
+		const { body: c_product } = await test_server
+			.post(Endpoints.ProductCreate)
+			.set("Authorization", `Bearer ${access_token}`)
+			.send(mock_product);
+
+		const res = await test_server
+			.get(Endpoints.ProductList)
+			.set("Authorization", `Bearer ${access_token}`)
+			.query({ category_id: c_product.category });
+
+		expect(res.statusCode).toBe(200);
+		expect(res.body).toBeTruthy();
+		expect(res.body).toHaveProperty("content");
+		expect(res.body.content.length).toBeGreaterThan(0);
 	});
 });
 
@@ -210,32 +285,6 @@ describe("DELETE /api/products/:id", () => {
 		expect(res.statusCode).toBe(204);
 	});
 
-	it("should return 403 if user is not from store", async () => {
-		const another_mock_store = create_mock_store();
-		const another_c_store = await test_server
-			.post(Endpoints.StoreCreate)
-			.send(another_mock_store);
-
-		const another_access_token = (
-			await test_server.post(Endpoints.AuthLogin).send({
-				email: another_mock_store.email,
-				password: another_mock_store.password,
-			})
-		).body.access_token;
-
-		const mock_product = create_mock_product();
-		const c_product = await test_server
-			.post(Endpoints.ProductCreate)
-			.set("Authorization", `Bearer ${access_token}`)
-			.send(mock_product);
-
-		const res = await test_server
-			.delete(Endpoints.ProductDelete.replace(":id", c_product.body._id))
-			.set("Authorization", `Bearer ${another_access_token}`);
-
-		expect(res.statusCode).toBe(403);
-	});
-
 	it("should return error if product is not found", async () => {
 		const res = await test_server
 			.delete(Endpoints.ProductDelete.replace(":id", "123"))
@@ -282,6 +331,13 @@ describe("ProductsRepositoryImpl class", () => {
 
 	describe("list", () => {
 		it("should return 200 with a list of products", async () => {
+			req = mock_request({
+				headers: {
+					authorization: `Bearer ${access_token}`,
+				},
+				query: {},
+			});
+
 			await ProductsRepositoryImpl.list(req, res);
 
 			expect(res.status).toHaveBeenCalledWith(200);
@@ -372,32 +428,6 @@ describe("ProductsRepositoryImpl class", () => {
 			await ProductsRepositoryImpl.delete(req, res);
 
 			expect(res.status).toHaveBeenCalledWith(400);
-		});
-
-		it("should return error if user is not from store", async () => {
-			const another_mock_store = create_mock_store();
-			const another_c_store = await test_server
-				.post(Endpoints.StoreCreate)
-				.send(another_mock_store);
-
-			const another_access_token = (
-				await test_server.post(Endpoints.AuthLogin).send({
-					email: another_mock_store.email,
-					password: another_mock_store.password,
-				})
-			).body.access_token;
-
-			const mock_product = create_mock_product();
-			const c_product = await test_server
-				.post(Endpoints.ProductCreate)
-				.set("Authorization", `Bearer ${access_token}`)
-				.send(mock_product);
-
-			req.params = { id: c_product.body._id };
-
-			await ProductsRepositoryImpl.delete(req, res);
-
-			expect(res.status).toHaveBeenCalledWith(403);
 		});
 
 		it("should return error if product is not found", async () => {

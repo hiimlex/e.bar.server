@@ -1,8 +1,10 @@
 import { faker } from "@faker-js/faker/.";
-import { TProduct } from "@modules";
+import { TProduct } from "types";
 import { Types } from "mongoose";
 
-export const create_mock_product: () => Omit<TProduct, "_id"> = () => ({
+export const create_mock_product: (opt?: Partial<TProduct>) => Omit<TProduct, "_id"> = (
+	opt?: Partial<TProduct>
+) => ({
 	category: new Types.ObjectId(),
 	store: new Types.ObjectId(),
 	description: faker.lorem.lines(),
@@ -16,4 +18,5 @@ export const create_mock_product: () => Omit<TProduct, "_id"> = () => ({
 	createdAt: new Date(),
 	enabled: true,
 	updatedAt: new Date(),
+	...opt,
 });

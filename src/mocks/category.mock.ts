@@ -1,6 +1,5 @@
 import { faker } from "@faker-js/faker/.";
-import { TCategory } from "@modules/categories";
-import { Types } from "mongoose";
+import { TCategory } from "types";
 
 export const create_mock_category: () => Omit<
 	TCategory,

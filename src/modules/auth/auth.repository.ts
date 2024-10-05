@@ -2,13 +2,17 @@ import { get_bearer_token, handle_error } from "@utils";
 import { compare } from "bcrypt";
 import { NextFunction, Request, Response } from "express";
 import jwt, { JwtPayload, decode } from "jsonwebtoken";
-import { ATTENDANCE_COOKIE_NAME, JWT_EXPIRES_IN, JWT_SECRET } from "types";
+import {
+	ATTENDANCE_COOKIE_NAME,
+	IWaiterDocument,
+	JWT_EXPIRES_IN,
+	JWT_SECRET,
+	TWaiter,
+} from "types";
 import {
 	AttendancesModel,
 	IStoreDocument,
-	IWaiterDocument,
 	StoresModel,
-	TWaiter,
 	WaitersModel,
 } from "..";
 import { HttpException } from "../../core";
@@ -133,7 +137,7 @@ class AuthRepository {
 			const store = await StoresModel.findById(store_id);
 
 			if (!store) {
-				throw new HttpException(403, "FORBIDDEN");
+				throw new HttpException(400, "STORE_NOT_FOUND");
 			}
 
 			res.locals.store = store;
@@ -169,7 +173,7 @@ class AuthRepository {
 			const waiter = await WaitersModel.findById(waiter_id);
 
 			if (!waiter) {
-				throw new HttpException(403, "FORBIDDEN");
+				throw new HttpException(400, "WAITER_NOT_FOUND");
 			}
 
 			res.locals.waiter = waiter;
@@ -188,11 +192,13 @@ class AuthRepository {
 				req.signedCookies[ATTENDANCE_COOKIE_NAME] ||
 				req.cookies[ATTENDANCE_COOKIE_NAME];
 
+
 			if (!attendance_cookie) {
 				throw new HttpException(403, "FORBIDDEN");
 			}
 
 			const decoded_attendance = decode(attendance_cookie, { json: true });
+
 
 			if (!decoded_attendance) {
 				throw new HttpException(403, "FORBIDDEN");
@@ -205,6 +211,7 @@ class AuthRepository {
 			if (!attendance) {
 				throw new HttpException(403, "FORBIDDEN");
 			}
+
 
 			if (!attendance.working_at.some((el) => el.equals(waiter._id))) {
 				throw new HttpException(403, "FORBIDDEN");
@@ -239,6 +246,19 @@ class AuthRepository {
 			const waiter: IWaiterDocument = res.locals.waiter;
 
 			return res.status(200).json(waiter);
+		} catch (error) {
+			return handle_error(res, error);
+		}
+	}
+
+	async validate_attendance_code(
+		req: Request,
+		res: Response
+	): Promise<Response<void>> {
+		try {
+			const attendance: any = res.locals.attendance;
+
+			return res.status(200).json(attendance);
 		} catch (error) {
 			return handle_error(res, error);
 		}

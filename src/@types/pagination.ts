@@ -9,3 +9,9 @@ export interface IPaginationResponse<T = any> {
 	limit?: number;
 	next?: boolean;
 }
+
+export interface IPaginationFilters {
+	page?: number;
+	limit?: number;
+	offset?: number;
+}

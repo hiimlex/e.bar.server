@@ -1,5 +1,3 @@
-import { IStoreDocument, IWaiterDocument } from "@modules";
-
 export enum Collections {
 	Stores = "Stores",
 	Products = "Products",
@@ -9,9 +7,4 @@ export enum Collections {
 	Payments = "Payments",
 	Tables = "Tables",
 	Attendances = "Attendances",
-}
-
-export interface IResponseLocals {
-	store: IStoreDocument;
-	waiter: IWaiterDocument;
 }

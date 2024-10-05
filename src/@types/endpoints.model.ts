@@ -6,6 +6,7 @@ export enum Endpoints {
 	AuthGetStore = "/api/auth/get-store",
 	AuthGetWaiter = "/api/auth/get-waiter",
 	AuthIsAuthenticated = "/api/auth/is-authenticated",
+	AuthValidateAttendanceCode = "/api/auth/validate/code",
 
 	// Store
 	StoreCreate = "/api/stores",
@@ -49,8 +50,6 @@ export enum Endpoints {
 	WaiterOrderUpdate = "/api/w-orders/:id",
 	WaiterOrderCancel = "/api/w-orders/cancel/:id",
 	WaiterOrderFinish = "/api/w-orders/finish/:id",
-	
-	
 
 	// Payments
 	PaymentCreate = "/api/payments",
@@ -61,6 +60,7 @@ export enum Endpoints {
 	// Tables
 	TableCreate = "/api/tables",
 	TableList = "/api/tables",
+	TableListAvailables = "/api/tables/availables",
 	TableListById = "/api/tables/:id",
 	TableUpdate = "/api/tables/:id",
 	TableDelete = "/api/tables/:id",
@@ -68,11 +68,13 @@ export enum Endpoints {
 	// Test
 	TestUpload = "/api/test/upload",
 
-	// Attendances 
+	// Attendances
 	AttendanceCreate = "/api/attendances",
 	AttendanceList = "/api/attendances",
 	AttendanceListById = "/api/attendances/:id",
 	AttendanceUpdate = "/api/attendances/:id",
+	AttendanceClose = "/api/attendances/close/:id",
 	AttendanceGetByCode = "/api/attendances/code/:code",
 	AttendanceValidateCode = "/api/attendances/validate/:code",
+	AttendanceAddTable = "/api/attendances/add-table/:id",
 }

@@ -8,6 +8,10 @@ import { JWT_SECRET } from "types";
 export class Server {
 	app!: Application;
 	port!: number | string;
+	corsOptions = {
+		origin: process.env.FRONTEND_URL || "http://localhost:3001",
+		credentials: true,
+	};
 
 	constructor(port: number | string) {
 		this.app = express();
@@ -35,7 +39,7 @@ export class Server {
 
 	private set_middlewares(): void {
 		this.app.use(json());
-		this.app.use(cors());
+		this.app.use(cors(this.corsOptions));
 		this.app.use(cookieParser(JWT_SECRET));
 	}
 

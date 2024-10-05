@@ -2,7 +2,7 @@ import { HttpException } from "@core/server";
 import { handle_error } from "@utils/handle_error";
 import { Request, Response } from "express";
 import multer from "multer";
-import { TUploadedFile } from "types/files";
+import { TUploadedFile } from "types/files.model";
 import { CloudinaryStorage } from "multer-storage-cloudinary";
 import { v2 as cloudinary } from "cloudinary";
 
@@ -43,7 +43,6 @@ class CloudinaryRepository {
 
 			return res.json(result);
 		} catch (error) {
-			console.log(error);
 			return handle_error(res, error);
 		}
 	}

@@ -1,14 +1,7 @@
 import { timestamps } from "@core/index";
 import { FileSchema } from "@modules/cloudinary";
-import {
-	Document,
-	InferSchemaType,
-	Model,
-	Schema,
-	Types,
-	model,
-} from "mongoose";
-import { Collections } from "types";
+import { Schema, model } from "mongoose";
+import { Collections, IWaiterDocument, IWaitersModel, TWaiter } from "types";
 
 const WaiterSchema = new Schema(
 	{
@@ -24,10 +17,12 @@ const WaiterSchema = new Schema(
 		phone: {
 			type: Number,
 			required: true,
+			unique: true,
 		},
 		email: {
 			type: String,
 			required: true,
+			unique: true,
 		},
 		password: {
 			type: String,
@@ -59,15 +54,9 @@ WaiterSchema.methods.toJSON = function (): TWaiter {
 	return waiter;
 };
 
-type TWaiter = InferSchemaType<typeof WaiterSchema>;
-
-interface IWaiterDocument extends Document<Types.ObjectId>, TWaiter {}
-
-interface IWaitersModel extends Model<IWaiterDocument> {}
-
 const WaitersModel: IWaitersModel = model<IWaiterDocument, IWaitersModel>(
 	Collections.Waiters,
 	WaiterSchema
 );
 
-export { IWaiterDocument, IWaitersModel, TWaiter, WaitersModel, WaiterSchema };
+export { WaiterSchema, WaitersModel };

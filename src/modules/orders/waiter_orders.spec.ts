@@ -1,4 +1,4 @@
-import { TAttendance, TProduct, TStore, TTable, TWaiter } from "@modules";
+import { TStore, TWaiter } from "@modules";
 import { test_agent } from "app";
 import {
 	create_mock_attendance,
@@ -8,9 +8,9 @@ import {
 	create_mock_waiter,
 } from "mocks";
 import { MongoMemoryServer } from "mongodb-memory-server";
-import mongoose, { Types } from "mongoose";
-import { Endpoints } from "types";
-import { OrderStatus, TOrder } from "./orders.model";
+import mongoose from "mongoose";
+import { Endpoints, TAttendance, TProduct, TTable } from "types";
+import { OrderStatus, TOrder } from "./orders.schema";
 
 const test_server = test_agent;
 let mongo_server: MongoMemoryServer;

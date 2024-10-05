@@ -7,7 +7,7 @@ import {
 	Schema,
 	Types,
 } from "mongoose";
-import { Collections } from "types";
+import { Collections, IProductDocument, IProductsModel } from "types";
 import { FileSchema } from "../cloudinary";
 
 const ProductSchema = new Schema(
@@ -60,19 +60,6 @@ const ProductSchema = new Schema(
 	}
 );
 
-type TProduct = InferSchemaType<typeof ProductSchema>;
-
-interface IProductDocument extends Document<Types.ObjectId>, TProduct {
-	populate_all: () => Promise<IProductDocument>;
-}
-
-interface IProductsModelMethods {
-	populate_all: () => Promise<IProductDocument>;
-}
-
-interface IProductsModel
-	extends Model<IProductDocument, {}, IProductsModelMethods> {}
-
 ProductSchema.methods.populate_all = async function (this: IProductDocument) {
 	await this.populate("category");
 
@@ -84,10 +71,4 @@ const ProductsModel: IProductsModel = model<IProductDocument, IProductsModel>(
 	ProductSchema
 );
 
-export {
-	IProductDocument,
-	IProductsModel,
-	ProductSchema,
-	ProductsModel,
-	TProduct,
-};
+export { ProductSchema, ProductsModel };

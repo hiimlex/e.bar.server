@@ -1,18 +1,46 @@
+import { HttpException } from "@core/server";
+import { TFile } from "@modules/cloudinary";
 import { IStoreDocument } from "@modules/stores";
 import { handle_error } from "@utils/handle_error";
-import { Request, Response } from "express";
-import { IWaiterDocument, TWaiter, WaitersModel } from "./waiters.model";
-import { TFile } from "@modules/cloudinary";
-import { TUploadedFile } from "types/files";
-import { HttpException } from "@core/server";
 import { hash } from "bcrypt";
-import { SALT_ROUNDS } from "types";
+import { Request, Response } from "express";
+import {
+	IListWaitersFilters,
+	IWaiterDocument,
+	SALT_ROUNDS,
+	TWaiter,
+} from "types";
+import { TUploadedFile } from "types/files.model";
+import { WaitersModel } from "./waiters.schema";
+import { RootFilterQuery } from "mongoose";
 
 class WaitersRepository {
-	async list(req: Request, res: Response): Promise<Response<any>> {
+	async list(
+		req: Request<any, any, any, IListWaitersFilters>,
+		res: Response
+	): Promise<Response<any>> {
 		try {
+			const { sort, sort_by, name, enabled } = req.query;
+
 			const store: IStoreDocument = res.locals.store;
-			const waiters = await WaitersModel.find({ store: store._id });
+			const query: RootFilterQuery<TWaiter> = {
+				store: store._id,
+			};
+
+			if (name) {
+				query.name = { $regex: name, $options: "i" };
+			}
+
+			let sort_config = null;
+			if (sort && sort_by) {
+				sort_config = {
+					[sort_by]: sort,
+				};
+			}
+
+			const waiters = await WaitersModel.find(query, null, {
+				sort: sort_config,
+			}).collation({ locale: "en" });
 
 			return res.status(200).json({ content: waiters });
 		} catch (error) {

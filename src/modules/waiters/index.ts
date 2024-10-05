@@ -1,3 +1,3 @@
 export * from "./waiters.controller";
-export * from "./waiters.model";
+export * from "./waiters.schema";
 export * from "./waiters.repository";

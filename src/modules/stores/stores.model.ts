@@ -1,16 +1,16 @@
-import { Collections } from "types";
+import { timestamps } from "@core/index";
+import { AttendancesModel } from "@modules/attendances";
+import { FileSchema } from "@modules/cloudinary";
 import {
 	Document,
 	InferSchemaType,
-	model,
 	Model,
 	Schema,
 	Types,
+	model,
 } from "mongoose";
+import { Collections, TAttendanceStatus } from "types";
 import { AddressSchema } from "../address";
-import { FileSchema } from "@modules/cloudinary";
-import { AttendancesModel, AttendanceStatus } from "@modules/attendances";
-import { timestamps } from "@core/index";
 
 const StoreSchema = new Schema(
 	{
@@ -30,10 +30,12 @@ const StoreSchema = new Schema(
 		phone: {
 			type: Number,
 			required: true,
+			unique: true,
 		},
 		email: {
 			type: String,
 			required: true,
+			unique: true,
 		},
 		password: {
 			type: String,
@@ -98,7 +100,7 @@ StoreSchema.methods.has_active_attendance =
 
 		const attendance = await AttendancesModel.findOne({
 			store: store._id,
-			status: AttendanceStatus.OPEN,
+			status: TAttendanceStatus.OPEN,
 		});
 
 		return !!attendance;

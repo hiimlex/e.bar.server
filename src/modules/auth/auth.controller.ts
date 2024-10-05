@@ -10,11 +10,17 @@ export class AuthController extends BaseController {
 	define_routes(): void {
 		this.router.post(Endpoints.AuthLogin, AuthRepositoryImpl.login);
 
-
 		this.router.get(
 			Endpoints.AuthMe,
 			AuthRepositoryImpl.is_authenticated,
 			AuthRepositoryImpl.me
+		);
+
+		this.router.get(
+			Endpoints.AuthValidateAttendanceCode,
+			AuthRepositoryImpl.is_waiter,
+			AuthRepositoryImpl.is_on_attendance,
+			AuthRepositoryImpl.validate_attendance_code
 		);
 
 		this.router.get(

@@ -14,6 +14,13 @@ export class TablesController extends BaseController {
 			AuthRepositoryImpl.is_store,
 			TablesRepositoryImpl.list
 		);
+
+		this.router.get(
+			Endpoints.TableListAvailables,
+			AuthRepositoryImpl.is_waiter,
+			TablesRepositoryImpl.list_to_waiter
+		);
+
 		this.router.post(
 			Endpoints.TableCreate,
 			AuthRepositoryImpl.is_store,

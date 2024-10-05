@@ -59,8 +59,6 @@ describe("GET /api/waiters", () => {
 
 		expect(statusCode).toBe(401);
 	});
-
-	it('should attach "store_id" to the request query', async () => {});
 });
 
 describe("POST /api/waiters", () => {
@@ -160,8 +158,6 @@ describe("PUT /api/waiters/profile", () => {
 		} = await test_server
 			.post(Endpoints.AuthLogin)
 			.send({ email: mock_waiter.email, password: mock_waiter.password });
-
-		console.log(w_access_token, is_store);
 
 		const { body, statusCode } = await test_server
 			.put(Endpoints.WaiterUpdateProfile)

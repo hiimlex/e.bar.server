@@ -1,19 +1,11 @@
 import { timestamps } from "@core/config";
-import {
-	Document,
-	InferSchemaType,
-	model,
-	Model,
-	Schema,
-	Types,
-} from "mongoose";
+import { model, Schema } from "mongoose";
 import { Collections } from "types";
-
-enum AttendanceStatus {
-	OPEN = "OPEN",
-	CANCELLED = "CANCELLED",
-	CLOSED = "CLOSED",
-}
+import {
+	IAttendanceDocument,
+	IAttendancesModel,
+	TAttendanceStatus,
+} from "types/attendances.model";
 
 const AttendanceSchema = new Schema(
 	{
@@ -50,11 +42,11 @@ const AttendanceSchema = new Schema(
 		status: {
 			type: String,
 			enum: [
-				AttendanceStatus.OPEN,
-				AttendanceStatus.CLOSED,
-				AttendanceStatus.CANCELLED,
+				TAttendanceStatus.OPEN,
+				TAttendanceStatus.CLOSED,
+				TAttendanceStatus.CANCELLED,
 			],
-			default: AttendanceStatus.OPEN,
+			default: TAttendanceStatus.OPEN,
 		},
 		working_at: {
 			type: [Schema.Types.ObjectId],
@@ -68,18 +60,9 @@ const AttendanceSchema = new Schema(
 	}
 );
 
-type TAttendance = InferSchemaType<typeof AttendanceSchema>;
-
-interface IAttendanceDocument extends Document<Types.ObjectId>, TAttendance {}
-
-interface IAttendanceMethods {}
-
-interface IAttendancesModel
-	extends Model<IAttendanceDocument, {}, IAttendanceMethods> {}
-
 const AttendancesModel = model<IAttendanceDocument, IAttendancesModel>(
 	Collections.Attendances,
 	AttendanceSchema
 );
 
-export { AttendancesModel, IAttendanceDocument, TAttendance, AttendanceStatus };
+export { AttendanceSchema, AttendancesModel };

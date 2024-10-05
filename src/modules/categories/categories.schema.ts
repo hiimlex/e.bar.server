@@ -1,5 +1,5 @@
-import { Collections } from "types";
-import { InferSchemaType, model, Schema, Document, Model, Types } from "mongoose";
+import { Schema, model } from "mongoose";
+import { Collections, ICategoriesModel, ICategoryDocument } from "types";
 
 const CategorySchema = new Schema(
 	{
@@ -17,15 +17,9 @@ const CategorySchema = new Schema(
 	{ versionKey: false, timestamps: false, collection: Collections.Categories }
 );
 
-type TCategory = InferSchemaType<typeof CategorySchema>;
-
-interface ICategoryDocument extends Document<Types.ObjectId>, TCategory {}
-
-interface ICategoriesModel extends Model<ICategoryDocument> {}
-
 const CategoriesModel: ICategoriesModel = model<
 	ICategoryDocument,
 	ICategoriesModel
 >(Collections.Categories, CategorySchema);
 
-export { CategoriesModel, ICategoryDocument, ICategoriesModel, TCategory };
+export { CategoriesModel, CategorySchema };

@@ -1,21 +1,7 @@
 import { timestamps } from "@core/index";
 import { OrderProductSchema } from "@modules/order_products";
-import {
-	InferSchemaType,
-	Schema,
-	Document,
-	Types,
-	Model,
-	model,
-} from "mongoose";
-import { Collections } from "types";
-
-export enum OrderStatus {
-	PENDING = "PENDING",
-	DELIVERED = "DELIVERED",
-	FINISHED = "FINISHED",
-	CANCELED = "CANCELED",
-}
+import { Schema, model } from "mongoose";
+import { Collections, IOrderDocument, IOrdersModel, TOrderStatus } from "types";
 
 const OrderSchema = new Schema(
 	{
@@ -45,8 +31,8 @@ const OrderSchema = new Schema(
 		},
 		status: {
 			type: String,
-			enum: Object.values(OrderStatus),
-			default: OrderStatus.PENDING,
+			enum: Object.values(TOrderStatus),
+			default: TOrderStatus.PENDING,
 			required: true,
 		},
 		items: {
@@ -61,6 +47,13 @@ const OrderSchema = new Schema(
 			type: Number,
 			required: true,
 		},
+		delivered_at: {
+			type: Date,
+			required: false,
+		},
+		total: {
+			type: Number,
+		},
 	},
 	{
 		versionKey: false,
@@ -69,17 +62,34 @@ const OrderSchema = new Schema(
 	}
 );
 
-type TOrder = InferSchemaType<typeof OrderSchema>;
+OrderSchema.methods.populate_all = async function () {
+	const order = this as IOrderDocument;
 
-interface IOrderDocument extends TOrder, Document<Types.ObjectId> {}
+	await order.populate("attendance", "code tables count");
+	await order.populate("requested_by", "name");
+	await order.populate("table", "number");
+	await order.populate("store", "name");
 
-interface IOrdersModelMethods {}
+	if (order.items) {
+		order.total = order.items.reduce((acc, item) => acc + item.total, 0);
+	}
 
-interface IOrdersModel extends Model<IOrderDocument, {}, IOrdersModelMethods> {}
+	return this;
+};
+
+OrderSchema.pre("save", async function () {
+	const order = this as IOrderDocument;
+
+	if (order.items) {
+		order.total = order.items.reduce((acc, item) => acc + item.total, 0);
+	}
+
+	return this;
+});
 
 const OrdersModel: IOrdersModel = model<IOrderDocument, IOrdersModel>(
 	Collections.Orders,
 	OrderSchema
 );
 
-export { OrdersModel, IOrderDocument, TOrder, OrderSchema };
+export { OrderSchema, OrdersModel };

@@ -9,7 +9,12 @@ export class CategoriesController extends BaseController {
 	}
 
 	define_routes(): void {
-		this.router.get(Endpoints.CategoryList, CategoriesRepositoryImpl.list);
+		this.router.get(
+			Endpoints.CategoryList,
+			AuthRepositoryImpl.is_authenticated,
+			CategoriesRepositoryImpl.list
+		);
+		
 		this.router.get(
 			Endpoints.CategoryListByStoreId,
 			CategoriesRepositoryImpl.list_by_store_id

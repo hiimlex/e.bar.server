@@ -2,37 +2,61 @@ import { HttpException } from "@core/server";
 import { IStoreDocument } from "@modules/stores";
 import { handle_error } from "@utils/handle_error";
 import { Request, Response } from "express";
-import { TUploadedFile } from "types/files";
+import { RootFilterQuery } from "mongoose";
+import { IListProductsFilters, TProduct } from "types";
+import { TUploadedFile } from "types/files.model";
 import { TFile } from "../cloudinary";
-import { ProductsModel } from "./products.model";
-import { Collections } from "types";
+import { ProductsModel } from "./products.schema";
 
 class ProductsRepository {
-	async list(req: Request, res: Response): Promise<Response<null>> {
+	async list(
+		req: Request<any, any, any, IListProductsFilters>,
+		res: Response
+	): Promise<Response<null>> {
 		try {
-			const products = await ProductsModel.aggregate([
-				{
-					$lookup: {
-						from: Collections.Categories,
-						localField: "category",
-						foreignField: "_id",
-						as: "category_info",
-					},
-				},
-				{
-					$unwind: "$category_info",
-				},
-				{
-					$addFields: {
-						category_name: "$category_info.name",
-					},
-				},
-				{
-					$project: {
-						category_info: 0,
-					},
-				},
-			]);
+			const {
+				store_id,
+				category_id,
+				sort,
+				sort_by,
+				name,
+				no_stock,
+				limit,
+				offset,
+				page,
+			} = req.query;
+
+
+			const query: RootFilterQuery<TProduct> = {};
+
+			if (store_id) {
+				query.store = store_id;
+			}
+
+			if (category_id) {
+				query.category = category_id;
+			}
+
+			if (name) {
+				query.name = { $regex: name, $options: "i" };
+			}
+
+			if (no_stock) {
+				query.stock = { $eq: 0 };
+			}
+
+			let sort_config: any;
+			if (sort_by && sort) {
+				sort_config = { [sort_by.toString()]: sort };
+			}
+
+			const products = await ProductsModel.find(query, null, {
+				sort: sort_config,
+			}).collation({ locale: "en" });
+
+			for (const product of products) {
+				await product.populate_all();
+			}
 
 			return res.status(200).json({ content: products });
 		} catch (error) {
@@ -122,17 +146,14 @@ class ProductsRepository {
 				throw new HttpException(400, "ID_NOT_PROVIDED");
 			}
 
-			const product = await ProductsModel.findById(id);
+			const product = await ProductsModel.findOneAndDelete({
+				_id: id,
+				store: store._id,
+			});
 
 			if (!product) {
 				throw new HttpException(404, "PRODUCT_NOT_FOUND");
 			}
-
-			if (!product.store.equals(store._id)) {
-				throw new HttpException(403, "FORBIDDEN");
-			}
-
-			await product.deleteOne();
 
 			return res.status(204).json(null);
 		} catch (error) {

@@ -13,8 +13,8 @@ import {
 	Collections,
 	Endpoints,
 	SystemErrors,
+	TAttendanceStatus,
 } from "types";
-import { AttendanceStatus } from "./attendances.model";
 
 const test_server = test_agent;
 let mongo_server: MongoMemoryServer;
@@ -147,7 +147,7 @@ describe("POST /api/attendances", () => {
 
 	it("should return error if store already has an active attendance", async () => {
 		const mock_attendance = create_mock_attendance({
-			status: AttendanceStatus.OPEN,
+			status: TAttendanceStatus.OPEN,
 		});
 		await test_server
 			.post(Endpoints.AttendanceCreate)
@@ -180,7 +180,7 @@ describe("PUT /api/attendances", () => {
 
 		const res = await test_server
 			.put(Endpoints.AttendanceUpdate.replace(":id", _id))
-			.send({ status: AttendanceStatus.CLOSED })
+			.send({ status: TAttendanceStatus.CLOSED })
 			.set("Authorization", `Bearer ${access_token}`);
 
 		expect(res.status).toBe(201);
@@ -188,7 +188,7 @@ describe("PUT /api/attendances", () => {
 		expect(res.body).toHaveProperty("store");
 		expect(res.body).toHaveProperty("started_at");
 		expect(res.body).toHaveProperty("status");
-		expect(res.body.status).toBe(AttendanceStatus.CLOSED);
+		expect(res.body.status).toBe(TAttendanceStatus.CLOSED);
 	});
 });
 

@@ -44,5 +44,17 @@ export class AttendanceController extends BaseController {
 			AuthRepositoryImpl.is_waiter,
 			AttendanceRepositoryImpl.validate_attendance_code
 		);
+
+		this.router.post(
+			Endpoints.AttendanceAddTable,
+			AuthRepositoryImpl.is_store,
+			AttendanceRepositoryImpl.add_table
+		)
+
+		this.router.put(
+			Endpoints.AttendanceClose,
+			AuthRepositoryImpl.is_store,
+			AttendanceRepositoryImpl.close
+		);
 	}
 }

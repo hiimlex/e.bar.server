@@ -1,12 +1,18 @@
 import { HttpException } from "@core/server";
-import { IAttendanceDocument } from "@modules/attendances";
-import { IWaiterDocument } from "@modules/waiters";
+import { ProductsModel } from "@modules/products";
 import { handle_error } from "@utils/handle_error";
 import { Request, Response } from "express";
-import { IPaginationResponse } from "types";
-import { OrdersModel, OrderStatus, TOrder } from "./orders.model";
-import { TOrderProduct } from "@modules/order_products";
-import { ProductsModel } from "@modules/products";
+import {
+	IAttendanceDocument,
+	IPaginationResponse,
+	IWaiterDocument,
+	TOrder,
+	TOrderProduct,
+	TOrderStatus,
+} from "types";
+import { OrdersModel } from "./orders.schema";
+import { TablesModel } from "..";
+import { Types } from "mongoose";
 
 class WaiterOrdersRepository {
 	async list(
@@ -21,6 +27,10 @@ class WaiterOrdersRepository {
 				requested_by: waiter._id,
 				attendance: attendance._id,
 			});
+
+			for (const order of orders) {
+				await order.populate_all();
+			}
 
 			return res.status(200).json({ content: orders });
 		} catch (error) {
@@ -56,7 +66,7 @@ class WaiterOrdersRepository {
 			const attendance: IAttendanceDocument = res.locals.attendance;
 			const waiter: IWaiterDocument = res.locals.waiter;
 
-			const { table, customers } = req.body;
+			const { table_id, customers } = req.body;
 
 			const last_order = await OrdersModel.findOne({
 				attendance: attendance._id,
@@ -64,14 +74,31 @@ class WaiterOrdersRepository {
 
 			const order_number = last_order ? last_order.number + 1 : 1;
 
+			const table = await TablesModel.findOne({
+				_id: table_id,
+				store: attendance.store,
+			});
+
+			if (!table) {
+				throw new HttpException(404, "TABLE_NOT_FOUND");
+			}
+
 			const order = await OrdersModel.create({
 				store: attendance.store,
 				attendance: attendance._id,
 				requested_by: waiter._id,
-				table,
+				table: table_id,
 				customers,
 				number: order_number,
 			});
+
+			await table.updateOne({
+				in_use: true,
+				in_use_by: waiter._id,
+				customers,
+			});
+
+			await order.populate_all();
 
 			return res.status(201).json(order);
 		} catch (error) {
@@ -111,6 +138,7 @@ class WaiterOrdersRepository {
 							product: product_id,
 							quantity,
 							total: product.price * quantity,
+							_id: new Types.ObjectId(),
 						});
 					}
 				}
@@ -122,6 +150,12 @@ class WaiterOrdersRepository {
 			});
 
 			const updated_order = await OrdersModel.findById(order_id);
+
+			if (!updated_order) {
+				throw new HttpException(404, "ORDER_NOT_FOUND");
+			}
+
+			await updated_order.populate_all();
 
 			return res.status(201).json(updated_order);
 		} catch (error) {
@@ -146,15 +180,21 @@ class WaiterOrdersRepository {
 				throw new HttpException(404, "ORDER_NOT_FOUND");
 			}
 
-			if (order.status !== OrderStatus.PENDING) {
+			if (order.status !== TOrderStatus.PENDING) {
 				throw new HttpException(400, "CANNOT_CANCEL_ORDER");
 			}
 
 			await order.updateOne({
-				status: OrderStatus.CANCELED,
+				status: TOrderStatus.CANCELED,
 			});
 
 			const updated_order = await OrdersModel.findById(order_id);
+
+			if (!updated_order) {
+				throw new HttpException(404, "ORDER_NOT_FOUND");
+			}
+
+			await updated_order.populate_all();
 
 			return res.status(200).json(updated_order);
 		} catch (error) {

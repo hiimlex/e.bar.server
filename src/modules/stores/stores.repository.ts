@@ -11,7 +11,7 @@ class StoresRepository {
 		res: Response
 	): Promise<Response<IPaginationResponse<TStore>>> {
 		try {
-			const stores = await StoresModel.find();
+			const stores = await StoresModel.find().collation({ locale: "en" });
 
 			return res.status(200).json({ content: stores });
 		} catch (error: any) {

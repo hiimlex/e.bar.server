@@ -1,14 +1,14 @@
 import { timestamps } from "@core/config";
 import { InferSchemaType, Schema } from "mongoose";
-import { Collections } from "types";
-
-enum OrderProductStatus {
-	PENDING = "PENDING",
-	DELIVERED = "DELIVERED",
-}
+import { Collections, TOrderProductStatus } from "types";
 
 const OrderProductSchema = new Schema(
 	{
+		_id: {
+			type: Schema.Types.ObjectId,
+			auto: true,
+			required: true,
+		},
 		product: {
 			type: Schema.Types.ObjectId,
 			ref: Collections.Products,
@@ -23,8 +23,8 @@ const OrderProductSchema = new Schema(
 		},
 		status: {
 			type: String,
-			enum: Object.values(OrderProductStatus),
-			default: OrderProductStatus.PENDING,
+			enum: Object.values(TOrderProductStatus),
+			default: TOrderProductStatus.PENDING,
 			required: false,
 		},
 	},
@@ -34,6 +34,4 @@ const OrderProductSchema = new Schema(
 	}
 );
 
-type TOrderProduct = InferSchemaType<typeof OrderProductSchema>;
-
-export { OrderProductSchema, TOrderProduct, OrderProductStatus };
+export { OrderProductSchema };
