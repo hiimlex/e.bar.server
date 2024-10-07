@@ -50,6 +50,9 @@ export enum Endpoints {
 	WaiterOrderUpdate = "/api/w-orders/:id",
 	WaiterOrderCancel = "/api/w-orders/cancel/:id",
 	WaiterOrderFinish = "/api/w-orders/finish/:id",
+	WaiterOrderAddItem = "/api/w-orders/item/add/:id",
+	WaiterOrderUpdateItem = "/api/w-orders/item/update/:id",
+	WaiterOrderDeliverItem = "/api/w-orders/item/deliver/:id",
 
 	// Payments
 	PaymentCreate = "/api/payments",
@@ -77,4 +80,6 @@ export enum Endpoints {
 	AttendanceGetByCode = "/api/attendances/code/:code",
 	AttendanceValidateCode = "/api/attendances/validate/:code",
 	AttendanceAddTable = "/api/attendances/add-table/:id",
+	
+
 }

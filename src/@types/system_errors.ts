@@ -31,6 +31,8 @@ export enum SystemErrors {
 	// Order
 	ORDER_NOT_FOUND = "ORDER_NOT_FOUND",
 	CANNOT_CANCEL_ORDER = "CANNOT_CANCEL_ORDER",
+	ORDER_PRODUCT_NOT_FOUND = "ORDER_PRODUCT_NOT_FOUND",
+	NO_ORDER_PRODUCTS = "NO_ORDER_PRODUCTS",
 }
 
 export type TSystemErrors = keyof typeof SystemErrors;

@@ -2,11 +2,11 @@ import {
 	AttendanceController,
 	AuthController,
 	CategoriesController,
-	OrdersController,
 	ProductsController,
 	StoresController,
 	TablesController,
 	UploadController,
+	WaiterOrdersController,
 	WaitersController,
 } from "@modules";
 
@@ -18,7 +18,7 @@ const upload_controller = new UploadController();
 const tables_controller = new TablesController();
 const waiters_controller = new WaitersController();
 const attendance_controller = new AttendanceController();
-const orders_controller = new OrdersController();
+const waiter_orders_controller = new WaiterOrdersController();
 
 export const routers = [
 	auth_controller.router,
@@ -29,5 +29,5 @@ export const routers = [
 	tables_controller.router,
 	waiters_controller.router,
 	attendance_controller.router,
-	orders_controller.router,
+	waiter_orders_controller.router,
 ];

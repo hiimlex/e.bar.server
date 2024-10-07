@@ -223,6 +223,10 @@ class AttendanceRepository {
 				throw new HttpException(404, "ATTENDANCE_NOT_FOUND");
 			}
 
+			if (attendance.status === TAttendanceStatus.CLOSED) {
+				throw new HttpException(400, "ATTENDANCE_IS_CLOSED");
+			}
+
 			const waiter_has_already_validated_code = attendance.working_at.some(
 				(el) => el.equals(waiter._id)
 			);

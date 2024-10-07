@@ -2,31 +2,57 @@ import { HttpException } from "@core/server";
 import { ProductsModel } from "@modules/products";
 import { handle_error } from "@utils/handle_error";
 import { Request, Response } from "express";
+import { RootFilterQuery, Types } from "mongoose";
 import {
 	IAttendanceDocument,
+	IListOrdersFilters,
 	IPaginationResponse,
+	IUpdateOrderProduct,
 	IWaiterDocument,
 	TOrder,
 	TOrderProduct,
+	TOrderProductStatus,
 	TOrderStatus,
 } from "types";
-import { OrdersModel } from "./orders.schema";
 import { TablesModel } from "..";
-import { Types } from "mongoose";
+import { OrdersModel } from "./orders.schema";
 
 class WaiterOrdersRepository {
 	async list(
-		req: Request,
+		req: Request<any, any, any, IListOrdersFilters>,
 		res: Response<IPaginationResponse<TOrder>>
 	): Promise<Response<IPaginationResponse<TOrder>>> {
 		try {
+			const {
+				status,
+				order_product_status,
+				limit,
+				offset,
+				page,
+				sort,
+				sort_by,
+			} = req.query;
+
 			const attendance: IAttendanceDocument = res.locals.attendance;
 			const waiter: IWaiterDocument = res.locals.waiter;
 
-			const orders = await OrdersModel.find({
+			const query: RootFilterQuery<TOrder> = {
 				requested_by: waiter._id,
 				attendance: attendance._id,
-			});
+			};
+
+			if (status) {
+				query.status = status;
+			}
+
+			let sort_config = null;
+			if (sort && sort_by) {
+				sort_config = { [sort_by]: sort };
+			}
+
+			const orders = await OrdersModel.find(query, null, {
+				sort: sort_config,
+			}).limit(+(limit || 0));
 
 			for (const order of orders) {
 				await order.populate_all();
@@ -38,21 +64,37 @@ class WaiterOrdersRepository {
 		}
 	}
 
-	async show_by_id(req: Request, res: Response): Promise<Response<any>> {
+	async show_by_id(
+		req: Request<any, any, any, IListOrdersFilters>,
+		res: Response
+	): Promise<Response<any>> {
 		try {
+			const { order_product_status, sort, sort_by } = req.query;
+
 			const attendance: IAttendanceDocument = res.locals.attendance;
 			const waiter: IWaiterDocument = res.locals.waiter;
 
 			const order_id = req.params.id;
 
-			const order = await OrdersModel.findOne({
+			const query: RootFilterQuery<TOrder> = {
 				_id: order_id,
 				requested_by: waiter._id,
 				attendance: attendance._id,
-			});
+			};
+
+			const order = await OrdersModel.findOne(query);
 
 			if (!order) {
 				throw new HttpException(404, "ORDER_NOT_FOUND");
+			}
+
+			await order.populate_all();
+
+			if (order_product_status && order.items) {
+				const order_products = order.items.filter(
+					(op) => op.status === order_product_status
+				);
+				order.items = order_products as any;
 			}
 
 			return res.status(200).json(order);
@@ -95,7 +137,7 @@ class WaiterOrdersRepository {
 			await table.updateOne({
 				in_use: true,
 				in_use_by: waiter._id,
-				customers,
+				order: order._id,
 			});
 
 			await order.populate_all();
@@ -123,7 +165,58 @@ class WaiterOrdersRepository {
 				throw new HttpException(404, "ORDER_NOT_FOUND");
 			}
 
-			const { items, status } = req.body;
+			const { status, customers } = req.body;
+
+			await order.updateOne({
+				status,
+				customers,
+			});
+
+			if (!!customers) {
+				const table = await TablesModel.findOne({
+					_id: order.table,
+					store: attendance.store,
+				});
+
+				if (table) {
+					await table.updateOne({
+						customers,
+					});
+				}
+			}
+
+			const updated_order = await OrdersModel.findById(order_id);
+
+			if (!updated_order) {
+				throw new HttpException(404, "ORDER_NOT_FOUND");
+			}
+
+			await updated_order.populate_all();
+
+			return res.status(201).json(updated_order);
+		} catch (error) {
+			return handle_error(res, error);
+		}
+	}
+
+	async add_item(req: Request, res: Response): Promise<Response<TOrder>> {
+		try {
+			const attendance: IAttendanceDocument = res.locals.attendance;
+			const waiter: IWaiterDocument = res.locals.waiter;
+
+			const order_id = req.params.id;
+
+			const order = await OrdersModel.findOne({
+				_id: order_id,
+				requested_by: waiter._id,
+				attendance: attendance._id,
+			});
+
+			if (!order) {
+				throw new HttpException(404, "ORDER_NOT_FOUND");
+			}
+
+			const { items } = req.body;
 
 			const order_products: TOrderProduct[] = [];
 
@@ -133,12 +226,17 @@ class WaiterOrdersRepository {
 
 					const product = await ProductsModel.findById(product_id);
 
-					if (product) {
+					if (product && quantity <= product.stock) {
 						order_products.push({
 							product: product_id,
 							quantity,
 							total: product.price * quantity,
 							_id: new Types.ObjectId(),
+							status: TOrderProductStatus.PENDING,
+						});
+
+						await product.updateOne({
+							stock: product.stock - quantity,
 						});
 					}
 				}
@@ -146,7 +244,101 @@ class WaiterOrdersRepository {
 
 			await order.updateOne({
 				items: order_products,
-				status,
+			});
+
+			const updated_order = await OrdersModel.findById(order_id);
+
+			if (!updated_order) {
+				throw new HttpException(404, "ORDER_NOT_FOUND");
+			}
+
+			await updated_order.populate_all();
+
+			return res.status(201).json(updated_order);
+		} catch (error) {
+			return handle_error(res, error);
+		}
+	}
+
+	async update_item(req: Request, res: Response): Promise<Response<any>> {
+		try {
+			const attendance: IAttendanceDocument = res.locals.attendance;
+			const waiter: IWaiterDocument = res.locals.waiter;
+
+			const order_id = req.params.id;
+
+			const order = await OrdersModel.findOne({
+				_id: order_id,
+				requested_by: waiter._id,
+				attendance: attendance._id,
+			});
+
+			if (!order) {
+				throw new HttpException(404, "ORDER_NOT_FOUND");
+			}
+
+			const { items } = req.body;
+
+			if (!order.items || order.items.length === 0) {
+				throw new HttpException(400, "NO_ORDER_PRODUCTS");
+			}
+
+			let order_products: (TOrderProduct | null)[] = await Promise.all(
+				order.items.map(async (op) => {
+					if (op.status === TOrderProductStatus.DELIVERED) {
+						return op;
+					}
+
+					const items_t = items as IUpdateOrderProduct[];
+					const item_to_update = items_t.find(
+						(item) => item.order_product_id === op._id.toString()
+					);
+
+					if (item_to_update) {
+						const product = await ProductsModel.findById(op.product);
+
+						const update_quantity = Object.hasOwnProperty.call(
+							item_to_update,
+							"quantity"
+						);
+						const update_status = Object.hasOwnProperty.call(
+							item_to_update,
+							"status"
+						);
+
+						if (update_status && item_to_update.status) {
+							op.status = item_to_update.status as TOrderProductStatus;
+						}
+
+						if (
+							update_quantity &&
+							item_to_update.quantity?.toString() &&
+							product &&
+							item_to_update.quantity <= product.stock
+						) {
+							const is_zero = item_to_update.quantity === 0;
+							const diff = item_to_update.quantity - op.quantity;
+
+							op.quantity = item_to_update.quantity;
+
+							await product.updateOne({
+								stock: product.stock - diff,
+							});
+
+							if (is_zero) {
+								return null;
+							}
+						}
+					}
+
+					return op;
+				})
+			);
+
+			order_products = order_products.filter((op) => !!op);
+
+			await order.updateOne({
+				items: order_products,
 			});
 
 			const updated_order = await OrdersModel.findById(order_id);

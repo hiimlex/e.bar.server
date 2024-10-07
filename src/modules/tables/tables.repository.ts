@@ -13,11 +13,12 @@ class TablesRepository {
 		res: Response
 	): Promise<Response<any>> {
 		try {
-			const { sort, sort_by, limit, store_id, is_enabled } = req.query;
+			const { sort, sort_by, limit, is_enabled } = req.query;
 
 			const store: IStoreDocument = res.locals.store;
+
 			const query: RootFilterQuery<TTable> = {
-				store: store._id || store_id,
+				store: store._id,
 			};
 
 			let sort_config = null;
@@ -27,13 +28,17 @@ class TablesRepository {
 				};
 			}
 
-			if (is_enabled !== null) {
+			if (is_enabled !== null && is_enabled !== undefined) {
 				query.enabled = is_enabled;
 			}
 
 			const tables = await TablesModel.find(query, null, {
 				sort: sort_config,
 			}).limit(+(limit || 0));
+
+			for (const table of tables) {
+				await table.populate_all();
+			}
 
 			return res.status(200).json({ content: tables });
 		} catch (error) {

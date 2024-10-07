@@ -1,4 +1,4 @@
-import { TStore, TWaiter } from "@modules";
+import { TStore } from "@modules";
 import { test_agent } from "app";
 import {
 	create_mock_attendance,
@@ -9,8 +9,7 @@ import {
 } from "mocks";
 import { MongoMemoryServer } from "mongodb-memory-server";
 import mongoose from "mongoose";
-import { Endpoints, TAttendance, TProduct, TTable } from "types";
-import { OrderStatus, TOrder } from "./orders.schema";
+import { Endpoints, TAttendance, TOrder, TOrderStatus, TProduct, TTable, TWaiter } from "types";
 
 const test_server = test_agent;
 let mongo_server: MongoMemoryServer;
@@ -138,7 +137,7 @@ describe("POST /api/w-orders", () => {
 			customers: 4,
 			table: c_table._id,
 			number: 1,
-			status: OrderStatus.PENDING,
+			status: TOrderStatus.PENDING,
 			requested_by: c_waiter._id,
 		});
 	});

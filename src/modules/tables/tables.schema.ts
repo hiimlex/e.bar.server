@@ -27,13 +27,16 @@ const TableSchema = new Schema(
 		in_use: {
 			type: Boolean,
 			default: false,
+			required: true,
 		},
 		in_use_by: {
 			type: Schema.Types.ObjectId,
 			ref: Collections.Waiters,
+			required: false,
 		},
-		customers: {
-			type: Number,
+		order: {
+			type: Schema.Types.ObjectId,
+			ref: Collections.Orders,
 			required: false,
 		},
 		store: {
@@ -52,6 +55,13 @@ const TableSchema = new Schema(
 TableSchema.statics.find_last_number = async function (): Promise<number> {
 	const last_table = await this.findOne().sort({ number: -1 });
 	return last_table ? last_table.number : 0;
+};
+
+TableSchema.methods.populate_all = async function (): Promise<ITableDocument> {
+	await this.populate("in_use_by", "_id name phone email");
+	await this.populate("order", "_id number status customers total");
+
+	return this as ITableDocument;
 };
 
 const TablesModel: ITablesModel = model<ITableDocument, ITablesModel>(

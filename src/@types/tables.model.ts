@@ -5,7 +5,9 @@ import { IPaginationFilters } from "./pagination";
 
 export type TTable = InferSchemaType<typeof TableSchema>;
 
-export interface ITableDocument extends Document<Types.ObjectId>, TTable {}
+export interface ITableDocument extends Document<Types.ObjectId>, TTable {
+	populate_all: () => Promise<ITableDocument>;
+}
 
 export interface ITablesModel extends Model<ITableDocument> {
 	find_last_number: () => Promise<number>;

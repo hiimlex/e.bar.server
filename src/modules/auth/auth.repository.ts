@@ -192,13 +192,11 @@ class AuthRepository {
 				req.signedCookies[ATTENDANCE_COOKIE_NAME] ||
 				req.cookies[ATTENDANCE_COOKIE_NAME];
 
-
 			if (!attendance_cookie) {
 				throw new HttpException(403, "FORBIDDEN");
 			}
 
 			const decoded_attendance = decode(attendance_cookie, { json: true });
-
 
 			if (!decoded_attendance) {
 				throw new HttpException(403, "FORBIDDEN");
@@ -211,7 +209,6 @@ class AuthRepository {
 			if (!attendance) {
 				throw new HttpException(403, "FORBIDDEN");
 			}
-
 
 			if (!attendance.working_at.some((el) => el.equals(waiter._id))) {
 				throw new HttpException(403, "FORBIDDEN");

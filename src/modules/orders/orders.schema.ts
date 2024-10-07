@@ -69,6 +69,7 @@ OrderSchema.methods.populate_all = async function () {
 	await order.populate("requested_by", "name");
 	await order.populate("table", "number");
 	await order.populate("store", "name");
+	await order.populate("items.product", "name price picture stock");
 
 	if (order.items) {
 		order.total = order.items.reduce((acc, item) => acc + item.total, 0);

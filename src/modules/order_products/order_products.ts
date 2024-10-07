@@ -25,7 +25,7 @@ const OrderProductSchema = new Schema(
 			type: String,
 			enum: Object.values(TOrderProductStatus),
 			default: TOrderProductStatus.PENDING,
-			required: false,
+			required: true,
 		},
 	},
 	{

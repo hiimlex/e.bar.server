@@ -9,7 +9,7 @@ export class Server {
 	app!: Application;
 	port!: number | string;
 	corsOptions = {
-		origin: process.env.FRONTEND_URL || "http://localhost:3001",
+		origin: [process.env.FRONTEND_URL || "http://localhost:3001", "http://192.168.1.116:3001"],
 		credentials: true,
 	};
 
