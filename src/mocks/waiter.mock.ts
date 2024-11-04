@@ -1,5 +1,5 @@
 import { faker } from "@faker-js/faker/.";
-import { TWaiter } from "@modules/waiters";
+import { TWaiter } from "types";
 
 export const create_mock_waiter: (
 	opt?: Partial<TWaiter>

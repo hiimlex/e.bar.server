@@ -223,7 +223,10 @@ class AttendanceRepository {
 				throw new HttpException(404, "ATTENDANCE_NOT_FOUND");
 			}
 
-			if (attendance.status === TAttendanceStatus.CLOSED) {
+			if (
+				attendance.status === TAttendanceStatus.CLOSED ||
+				!attendance.is_active
+			) {
 				throw new HttpException(400, "ATTENDANCE_IS_CLOSED");
 			}
 
@@ -259,8 +262,8 @@ class AttendanceRepository {
 					httpOnly: true,
 					signed: true,
 					maxAge: COOKIE_MAX_AGE,
-					secure: false,
-					// sameSite: "none",
+					secure: true,
+					sameSite: "none",
 					// domain: process.env.FRONTEND_URL || "http://localhost:3001",
 				})
 				.json(updated_attendance);

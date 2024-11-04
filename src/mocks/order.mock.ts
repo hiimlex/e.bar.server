@@ -1,4 +1,4 @@
-import { TOrder } from "@modules/orders";
+import { TOrder } from "types";
 
 export const create_mock_order: (
 	opt?: Partial<TOrder>
