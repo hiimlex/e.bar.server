@@ -86,6 +86,7 @@ class AttendanceRepository {
 	): Promise<Response<TAttendance>> {
 		try {
 			const waiter = res.locals.waiter;
+
 			const code = req.params.code;
 
 			if (!code) {

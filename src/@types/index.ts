@@ -10,3 +10,4 @@ export * from "./system_errors";
 export * from "./tables.model";
 export * from "./waiters.model";
 export * from "./orders.model";
+export * from "./payments.model";

@@ -9,6 +9,7 @@ import {
 	WaiterOrdersController,
 	WaitersController,
 } from "@modules";
+import { PaymentsController } from "@modules/payments/payments.controller";
 
 const auth_controller = new AuthController();
 const stores_controller = new StoresController();
@@ -19,6 +20,7 @@ const tables_controller = new TablesController();
 const waiters_controller = new WaitersController();
 const attendance_controller = new AttendanceController();
 const waiter_orders_controller = new WaiterOrdersController();
+const payments_controller = new PaymentsController();
 
 export const routers = [
 	auth_controller.router,
@@ -30,4 +32,5 @@ export const routers = [
 	waiters_controller.router,
 	attendance_controller.router,
 	waiter_orders_controller.router,
+	payments_controller.router,
 ];

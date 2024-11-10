@@ -69,7 +69,6 @@ interface IStoreDocument extends Document<Types.ObjectId>, TStore {
 	has_active_attendance(): Promise<boolean>;
 }
 
-interface IAttendanceMethods {}
 
 interface IStoreMethods {
 	populate_all(): Promise<IStoreDocument>;

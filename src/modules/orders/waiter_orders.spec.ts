@@ -9,7 +9,15 @@ import {
 } from "mocks";
 import { MongoMemoryServer } from "mongodb-memory-server";
 import mongoose from "mongoose";
-import { Endpoints, TAttendance, TOrder, TOrderStatus, TProduct, TTable, TWaiter } from "types";
+import {
+	Endpoints,
+	TAttendance,
+	TOrder,
+	TOrderStatus,
+	TProduct,
+	TTable,
+	TWaiter,
+} from "types";
 
 const test_server = test_agent;
 let mongo_server: MongoMemoryServer;
@@ -22,8 +30,6 @@ let c_attendance: TAttendance;
 let cookie = "";
 let c_table: TTable;
 let c_product: TProduct;
-
-const mock_waiter = create_mock_waiter();
 
 beforeAll(async () => {
 	if (mongoose.connection.readyState !== 0) {
@@ -45,12 +51,14 @@ beforeAll(async () => {
 		})
 	).body.access_token;
 
-	const { body } = await test_server
+	const mock_waiter = create_mock_waiter({ store: created_store._id });
+
+	const { body: created_waiter } = await test_server
 		.post(Endpoints.WaiterCreate)
 		.set("Authorization", `Bearer ${access_token}`)
 		.send(mock_waiter);
 
-	c_waiter = body;
+	c_waiter = created_waiter;
 
 	const { body: waiter_login } = await test_server
 		.post(Endpoints.AuthLogin)
@@ -64,7 +72,9 @@ beforeAll(async () => {
 	const { body: attendance } = await test_server
 		.post(Endpoints.AttendanceCreate)
 		.set("Authorization", `Bearer ${access_token}`)
-		.send(create_mock_attendance({ tables_count: 4 }));
+		.send(
+			create_mock_attendance({ tables_count: 4, store: created_store._id })
+		);
 
 	c_attendance = attendance;
 
@@ -78,14 +88,14 @@ beforeAll(async () => {
 		await test_server
 			.post(Endpoints.TableCreate)
 			.set("Authorization", `Bearer ${access_token}`)
-			.send(create_mock_table())
+			.send(create_mock_table({ store: created_store._id }))
 	).body;
 
 	c_product = (
 		await test_server
 			.post(Endpoints.ProductCreate)
 			.set("Authorization", `Bearer ${access_token}`)
-			.send(create_mock_product())
+			.send(create_mock_product({ store: created_store._id }))
 	).body;
 });
 
@@ -114,12 +124,6 @@ describe("GET /api/w-orders", () => {
 
 describe("POST /api/w-orders", () => {
 	it("should create and return an order", async () => {
-		const mock_table = create_mock_table();
-		const { body: c_table } = await test_server
-			.post(Endpoints.TableCreate)
-			.set("Authorization", `Bearer ${access_token}`)
-			.send(mock_table);
-
 		const res = await test_server
 			.post(Endpoints.WaiterOrderCreate)
 			.set("Authorization", `Bearer ${waiter_access_token}`)

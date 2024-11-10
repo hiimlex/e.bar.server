@@ -243,7 +243,8 @@ class WaiterOrdersRepository {
 			}
 
 			await order.updateOne({
-				items: order_products,
+				$push: { items: order_products },
+				status: TOrderStatus.PENDING,
 			});
 
 			const updated_order = await OrdersModel.findById(order_id);
@@ -337,8 +338,19 @@ class WaiterOrdersRepository {
 
 			order_products = order_products.filter((op) => !!op);
 
+			const all_delivered =
+				order_products &&
+				order_products.every(
+					(op) => !!op && op.status === TOrderProductStatus.DELIVERED
+				);
+
+			const new_order_status = all_delivered
+				? TOrderStatus.DELIVERED
+				: order.status;
+
 			await order.updateOne({
 				items: order_products,
+				status: new_order_status,
 			});
 
 			const updated_order = await OrdersModel.findById(order_id);

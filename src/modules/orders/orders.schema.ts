@@ -20,6 +20,11 @@ const OrderSchema = new Schema(
 			ref: Collections.Stores,
 			required: true,
 		},
+		payment: {
+			type: Schema.Types.ObjectId,
+			ref: Collections.Payments,
+			required: false,
+		},
 		requested_by: {
 			type: Schema.Types.ObjectId,
 			ref: Collections.Waiters,
@@ -70,6 +75,7 @@ OrderSchema.methods.populate_all = async function () {
 	await order.populate("table", "number");
 	await order.populate("store", "name");
 	await order.populate("items.product", "name price picture stock");
+	await order.populate("payment", "-_id method pix_config credit_card_config cash_config");
 
 	if (order.items) {
 		order.total = order.items.reduce((acc, item) => acc + item.total, 0);

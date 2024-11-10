@@ -57,6 +57,7 @@ export enum Endpoints {
 	// Payments
 	PaymentCreate = "/api/payments",
 	PaymentList = "/api/payments",
+	PaymentShowByOrder = "/api/payments/order/:order_id",
 	PaymentListById = "/api/payments/:id",
 	PaymentUpdate = "/api/payments/:id",
 
@@ -80,6 +81,4 @@ export enum Endpoints {
 	AttendanceGetByCode = "/api/attendances/code/:code",
 	AttendanceValidateCode = "/api/attendances/validate/:code",
 	AttendanceAddTable = "/api/attendances/add-table/:id",
-	
-
 }
