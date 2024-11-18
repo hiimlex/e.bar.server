@@ -36,8 +36,8 @@ export interface IUpdateOrderProduct {
 }
 
 export interface IListOrdersFilters
-	extends ISortFilter<"number" | "total">,
+	extends ISortFilter<"created_at" | "total">,
 		IPaginationFilters {
-	status?: keyof typeof TOrderStatus;
-	order_product_status?: keyof typeof TOrderProductStatus;
+	status?: string;
+	order_product_status?: string;
 }

@@ -6,14 +6,13 @@ import {
 	IPaginationResponse,
 	IWaiterDocument,
 	TAttendance,
-	TAttendanceStatus,
 	TOrderStatus,
 	TPayment,
 	TPaymentMethod,
 	TWaiter,
 } from "types";
+import { OrdersModel, TablesModel } from "..";
 import { PaymentsModel } from "./payments.schema";
-import { AttendancesModel, OrdersModel } from "..";
 
 class PaymentsRepository {
 	async list(
@@ -113,6 +112,18 @@ class PaymentsRepository {
 				payment: payment._id,
 				status: TOrderStatus.FINISHED,
 			});
+
+			const table = await TablesModel.findOne({
+				_id: order.table,
+			});
+
+			if (table) {
+				await table.updateOne({
+					in_use: false,
+					in_use_by: null,
+					order: null,
+				});
+			}
 
 			return res.status(201).json(payment);
 		} catch (error) {

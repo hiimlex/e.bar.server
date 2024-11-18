@@ -41,8 +41,10 @@ class WaiterOrdersRepository {
 				attendance: attendance._id,
 			};
 
-			if (status) {
-				query.status = status;
+			if (status && status.length > 0) {
+				const statusArr = status.split(",");
+
+				query.status = { $in: statusArr };
 			}
 
 			let sort_config = null;
@@ -91,8 +93,10 @@ class WaiterOrdersRepository {
 			await order.populate_all();
 
 			if (order_product_status && order.items) {
-				const order_products = order.items.filter(
-					(op) => op.status === order_product_status
+				const splitArr = order_product_status.split(",");
+
+				const order_products = order.items.filter((op) =>
+					splitArr.includes(op.status)
 				);
 				order.items = order_products as any;
 			}
