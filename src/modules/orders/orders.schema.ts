@@ -70,16 +70,14 @@ const OrderSchema = new Schema(
 OrderSchema.methods.populate_all = async function () {
 	const order = this as IOrderDocument;
 
-	await order.populate("attendance", "code tables count");
-	await order.populate("requested_by", "name");
-	await order.populate("table", "number");
-	await order.populate("store", "name");
-	await order.populate("items.product", "name price picture stock");
-	await order.populate("payment", "-_id method pix_config credit_card_config cash_config");
-
-	if (order.items) {
-		order.total = order.items.reduce((acc, item) => acc + item.total, 0);
-	}
+	await order.populate({
+		path: "attendance requested_by table store items.product",
+		select: "code tables count name number picture price stock",
+	});
+	await order.populate(
+		"payment",
+		"-_id method pix_config credit_card_config cash_config"
+	);
 
 	return this;
 };

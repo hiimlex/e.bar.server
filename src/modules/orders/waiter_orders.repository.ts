@@ -47,7 +47,9 @@ class WaiterOrdersRepository {
 				query.status = { $in: statusArr };
 			}
 
-			let sort_config = null;
+			let sort_config: Record<string, string> = {
+				["status"]: "desc",
+			};
 			if (sort && sort_by) {
 				sort_config = { [sort_by]: sort };
 			}
@@ -58,6 +60,7 @@ class WaiterOrdersRepository {
 
 			for (const order of orders) {
 				await order.populate_all();
+				await order.save();
 			}
 
 			return res.status(200).json({ content: orders });
@@ -196,6 +199,7 @@ class WaiterOrdersRepository {
 			}
 
 			await updated_order.populate_all();
+			await updated_order.save();
 
 			return res.status(201).json(updated_order);
 		} catch (error) {
@@ -258,6 +262,7 @@ class WaiterOrdersRepository {
 			}
 
 			await updated_order.populate_all();
+			await updated_order.save();
 
 			return res.status(201).json(updated_order);
 		} catch (error) {
@@ -364,6 +369,7 @@ class WaiterOrdersRepository {
 			}
 
 			await updated_order.populate_all();
+			await updated_order.save();
 
 			return res.status(201).json(updated_order);
 		} catch (error) {
@@ -403,6 +409,7 @@ class WaiterOrdersRepository {
 			}
 
 			await updated_order.populate_all();
+			await updated_order.save();
 
 			return res.status(200).json(updated_order);
 		} catch (error) {
