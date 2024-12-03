@@ -48,7 +48,7 @@ class WaiterOrdersRepository {
 			}
 
 			let sort_config: Record<string, string> = {
-				["status"]: "desc",
+				["created_at"]: "desc",
 			};
 			if (sort && sort_by) {
 				sort_config = { [sort_by]: sort };
