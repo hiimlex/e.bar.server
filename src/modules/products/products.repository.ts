@@ -27,7 +27,9 @@ class ProductsRepository {
 			} = req.query;
 
 
-			const query: RootFilterQuery<TProduct> = {};
+			const query: RootFilterQuery<TProduct> = {
+				stock: { $gt: 0 },
+			};
 
 			if (store_id) {
 				query.store = store_id;
