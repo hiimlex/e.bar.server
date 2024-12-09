@@ -8,6 +8,7 @@ import {
 	TAttendance,
 	TOrderStatus,
 	TPayment,
+	TPaymentItem,
 	TPaymentMethod,
 	TWaiter,
 } from "types";
@@ -64,18 +65,11 @@ class PaymentsRepository {
 		try {
 			const waiter = res.locals.waiter as TWaiter;
 			const attendance = res.locals.attendance as TAttendance;
-			const {
-				amount,
-				method,
-				cash_config,
-				pix_config,
-				credit_card_config,
-				order_id,
-			} = req.body;
+			const { amount, order_id, items } = req.body;
 
 			const new_payment_data: Partial<TPayment> = {
 				amount,
-				method,
+				items,
 				attendance: attendance._id,
 				order: order_id,
 				store: waiter.store,
@@ -94,17 +88,13 @@ class PaymentsRepository {
 				throw new HttpException(400, "ORDER_ALREADY_PAID");
 			}
 
-			if (method === TPaymentMethod.Cash) {
-				new_payment_data.cash_config = cash_config;
-			}
-
-			if (method === TPaymentMethod.Pix) {
-				new_payment_data.pix_config = pix_config;
-			}
-
-			if (method === TPaymentMethod.CreditCard) {
-				new_payment_data.credit_card_config = credit_card_config;
-			}
+			const items_amount = items.reduce((acc: number, item: TPaymentItem) => {
+				return acc + item.received_value;
+			}, 0);
+			const total = order.total || 0;
+			
+			new_payment_data.amount = items_amount;
+			new_payment_data.remaining = total - items_amount;
 
 			const payment = await PaymentsModel.create(new_payment_data);
 

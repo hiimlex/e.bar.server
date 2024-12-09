@@ -7,6 +7,29 @@ import {
 	TPaymentMethod,
 } from "types";
 
+const PaymentItemSchema = new Schema(
+	{
+		method: {
+			type: String,
+			enum: Object.values(TPaymentMethod),
+			required: true,
+		},
+		charge_back: {
+			type: Number,
+			required: false,
+		},
+		nf_number: {
+			type: String,
+			required: false,
+		},
+		received_value: {
+			type: Number,
+			required: true,
+		},
+	},
+	{ versionKey: false }
+);
+
 const PaymentSchema = new Schema(
 	{
 		_id: {
@@ -17,38 +40,15 @@ const PaymentSchema = new Schema(
 		amount: {
 			type: Number,
 			required: true,
+			default: 0,
 		},
-		method: {
-			type: String,
-			enum: Object.values(TPaymentMethod),
-			required: true,
-		},
-		pix_config: {
-			type: new Schema(
-				{
-					name: String,
-				},
-				{ _id: false, versionKey: false }
-			),
+		remaining: {
+			type: Number,
 			required: false,
+			default: 0,
 		},
-		cash_config: {
-			type: new Schema(
-				{
-					charge: Number,
-				},
-				{ _id: false, versionKey: false }
-			),
-			required: false,
-		},
-		credit_card_config: {
-			type: new Schema(
-				{
-					nf: String,
-				},
-				{ _id: false, versionKey: false }
-			),
-			required: false,
+		items: {
+			type: [PaymentItemSchema],
 		},
 		order: {
 			type: Schema.Types.ObjectId,
@@ -78,4 +78,4 @@ const PaymentsModel: IPaymentsModel = model<IPaymentDocument, IPaymentsModel>(
 	PaymentSchema
 );
 
-export { PaymentSchema, PaymentsModel };
+export { PaymentSchema, PaymentsModel, PaymentItemSchema };

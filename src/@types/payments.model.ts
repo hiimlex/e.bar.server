@@ -1,4 +1,4 @@
-import { PaymentSchema } from "@modules/payments";
+import { PaymentItemSchema, PaymentSchema } from "@modules/payments";
 import { InferSchemaType, Document, Types, Model } from "mongoose";
 import { IPaginationFilters } from "./pagination";
 import { ISortFilter } from "./generic.model";
@@ -10,6 +10,7 @@ export enum TPaymentMethod {
 }
 
 export type TPayment = InferSchemaType<typeof PaymentSchema>;
+export type TPaymentItem = InferSchemaType<typeof PaymentItemSchema>
 
 export interface IPaymentDocument extends TPayment, Document<Types.ObjectId> {}
 

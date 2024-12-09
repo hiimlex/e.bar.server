@@ -394,13 +394,28 @@ class WaiterOrdersRepository {
 				throw new HttpException(404, "ORDER_NOT_FOUND");
 			}
 
-			if (order.status !== TOrderStatus.PENDING) {
+			if (
+				order.status === TOrderStatus.CANCELED ||
+				order.status === TOrderStatus.DELIVERED
+			) {
 				throw new HttpException(400, "CANNOT_CANCEL_ORDER");
 			}
 
 			await order.updateOne({
 				status: TOrderStatus.CANCELED,
 			});
+
+			const table = await TablesModel.findOne({
+				_id: order.table,
+			});
+
+			if (table) {
+				await table.updateOne({
+					in_use: false,
+					in_use_by: null,
+					order: null,
+				});
+			}
 
 			const updated_order = await OrdersModel.findById(order_id);
 
