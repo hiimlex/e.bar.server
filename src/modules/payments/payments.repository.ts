@@ -9,7 +9,6 @@ import {
 	TOrderStatus,
 	TPayment,
 	TPaymentItem,
-	TPaymentMethod,
 	TWaiter,
 } from "types";
 import { OrdersModel, TablesModel } from "..";
@@ -44,7 +43,7 @@ class PaymentsRepository {
 		res: Response
 	): Promise<Response<TPayment>> {
 		try {
-			const { order_id, store_id } = req.params;
+			const { order_id } = req.params;
 
 			if (!order_id) {
 				throw new HttpException(404, "ORDER_NOT_FOUND");
@@ -52,7 +51,6 @@ class PaymentsRepository {
 
 			const payment = await PaymentsModel.findOne({
 				order: order_id,
-				store: store_id,
 			});
 
 			return res.status(200).json(payment);
@@ -68,7 +66,6 @@ class PaymentsRepository {
 			const { amount, order_id, items } = req.body;
 
 			const new_payment_data: Partial<TPayment> = {
-				amount,
 				items,
 				attendance: attendance._id,
 				order: order_id,
@@ -88,19 +85,24 @@ class PaymentsRepository {
 				throw new HttpException(400, "ORDER_ALREADY_PAID");
 			}
 
-			const items_amount = items.reduce((acc: number, item: TPaymentItem) => {
-				return acc + item.received_value;
-			}, 0);
+			const items_amount = items.reduce(
+				(acc: number, item: TPaymentItem) => acc + item.received_value,
+				0
+			);
 			const total = order.total || 0;
-			
+			const remaining = total - items_amount;
+
 			new_payment_data.amount = items_amount;
-			new_payment_data.remaining = total - items_amount;
+			new_payment_data.remaining = remaining;
+
+			if (remaining < 0) {
+				throw new HttpException(400, "PAYMENT_AMOUNT_EXCEEDS_TOTAL");
+			}
 
 			const payment = await PaymentsModel.create(new_payment_data);
 
 			await order.updateOne({
 				payment: payment._id,
-				status: TOrderStatus.FINISHED,
 			});
 
 			const table = await TablesModel.findOne({
@@ -125,27 +127,91 @@ class PaymentsRepository {
 		try {
 			const waiter = res.locals.waiter as IWaiterDocument;
 
-			const { id: payment_id } = req.params;
-			const { method, cash_config, pix_config, credit_card_config } = req.body;
+			const { payment_id } = req.params;
+			const { items } = req.body;
 
-			const payment = await PaymentsModel.findOneAndUpdate(
-				{
-					store: waiter.store,
-					_id: payment_id,
-				},
-				{
-					method,
-					cash_config: method === TPaymentMethod.Cash ? cash_config : null,
-					pix_config: method === TPaymentMethod.Pix ? pix_config : null,
-					credit_card_config:
-						method === TPaymentMethod.CreditCard ? credit_card_config : null,
-				},
-				{
-					new: true,
-				}
-			);
+			const payment = await PaymentsModel.findOne({
+				_id: payment_id,
+				store: waiter.store,
+			});
 
-			return res.status(200).json(payment);
+			if (!payment) {
+				throw new HttpException(404, "PAYMENT_NOT_FOUND");
+			}
+
+			const order = await OrdersModel.findOne({
+				_id: payment.order,
+				store: waiter.store,
+			});
+
+			if (!order) {
+				throw new HttpException(404, "ORDER_NOT_FOUND");
+			}
+
+			const total = order.total || 0;
+			const items_amount = items.reduce((acc: number, item: TPaymentItem) => {
+				return acc + item.received_value;
+			}, 0);
+			const remaining = total - items_amount;
+
+			if (remaining < 0) {
+				throw new HttpException(400, "PAYMENT_AMOUNT_EXCEEDS_TOTAL");
+			}
+
+			await payment.updateOne({
+				items,
+				amount: items_amount,
+				remaining,
+			});
+
+			const updated_payment = await PaymentsModel.findOne({
+				_id: payment_id,
+			});
+
+			return res.status(200).json(updated_payment);
+		} catch (error) {
+			return handle_error(res, error);
+		}
+	}
+
+	async finish(req: Request, res: Response): Promise<Response<null>> {
+		try {
+			const waiter = res.locals.waiter as IWaiterDocument;
+			const attendance = res.locals.attendance as TAttendance;
+
+			const { payment_id } = req.params;
+
+			const payment = await PaymentsModel.findOne({
+				_id: payment_id,
+				store: waiter.store,
+			});
+
+			if (!payment) {
+				throw new HttpException(404, "PAYMENT_NOT_FOUND");
+			}
+
+			const order = await OrdersModel.findOne({
+				_id: payment.order,
+				store: waiter.store,
+			});
+
+			if(order?.status === TOrderStatus.FINISHED) {
+				throw new HttpException(400, "ORDER_ALREADY_FINISHED");
+			}
+
+			if (!!payment.remaining && payment.remaining > 0) {
+				throw new HttpException(400, "PAYMENT_NOT_COMPLETED");
+			}
+
+			await order?.updateOne({
+				status: TOrderStatus.FINISHED,
+			});
+
+			await payment.updateOne({
+				status: TOrderStatus.FINISHED,
+			});
+
+			return res.status(200).json(null);
 		} catch (error) {
 			return handle_error(res, error);
 		}

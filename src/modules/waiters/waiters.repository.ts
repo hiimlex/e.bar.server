@@ -2,7 +2,7 @@ import { HttpException } from "@core/server";
 import { TFile } from "@modules/cloudinary";
 import { IStoreDocument } from "@modules/stores";
 import { handle_error } from "@utils/handle_error";
-import { hash } from "bcrypt";
+import { compare, hash } from "bcrypt";
 import { Request, Response } from "express";
 import {
 	IListWaitersFilters,
@@ -165,6 +165,39 @@ class WaitersRepository {
 			}
 
 			await waiter.updateOne(payload);
+
+			const updated_waiter = await WaitersModel.findOne({
+				_id: waiter._id,
+			});
+
+			return res.status(201).json(updated_waiter);
+		} catch (error) {
+			return handle_error(res, error);
+		}
+	}
+
+	async change_password(
+		req: Request,
+		res: Response
+	): Promise<Response<TWaiter>> {
+		try {
+			const waiter: IWaiterDocument = res.locals.waiter;
+
+			const { newPassword, oldPassword } = req.body;
+
+			if (!newPassword || !oldPassword) {
+				throw new HttpException(400, "PASSWORD_REQUIRED");
+			}
+
+			const is_valid = await compare(oldPassword, waiter.password);
+
+			if (!is_valid) {
+				throw new HttpException(400, "INVALID_PASSWORD");
+			}
+
+			const hash_password = await hash(newPassword, SALT_ROUNDS);
+
+			await waiter.updateOne({ password: hash_password });
 
 			const updated_waiter = await WaitersModel.findOne({
 				_id: waiter._id,

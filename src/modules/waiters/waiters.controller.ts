@@ -34,6 +34,13 @@ export class WaitersController extends BaseController {
 			WaitersRepositoryImpl.update_profile
 		);
 
+		this.router.put(
+			Endpoints.WaiterChangePassword,
+			AuthRepositoryImpl.is_waiter,
+			WaitersRepositoryImpl.change_password
+		);
+
+		// With params to not bug
 		this.router.get(
 			Endpoints.WaiterListById,
 			AuthRepositoryImpl.is_store,

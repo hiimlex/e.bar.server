@@ -14,8 +14,8 @@ const PaymentItemSchema = new Schema(
 			enum: Object.values(TPaymentMethod),
 			required: true,
 		},
-		charge_back: {
-			type: Number,
+		pix_name: {
+			type: String,
 			required: false,
 		},
 		nf_number: {
@@ -78,4 +78,4 @@ const PaymentsModel: IPaymentsModel = model<IPaymentDocument, IPaymentsModel>(
 	PaymentSchema
 );
 
-export { PaymentSchema, PaymentsModel, PaymentItemSchema };
+export { PaymentItemSchema, PaymentSchema, PaymentsModel };

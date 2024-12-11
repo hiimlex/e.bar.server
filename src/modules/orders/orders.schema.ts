@@ -76,7 +76,7 @@ OrderSchema.methods.populate_all = async function () {
 	});
 	await order.populate(
 		"payment",
-		"-_id method pix_config credit_card_config cash_config"
+		"items amount remaining created_at updated_at"
 	);
 
 	return this;

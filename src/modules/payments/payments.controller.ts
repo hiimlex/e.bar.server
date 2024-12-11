@@ -33,5 +33,11 @@ export class PaymentsController extends BaseController {
 			AuthRepositoryImpl.is_waiter,
 			PaymentsRepositoryImpl.update
 		)
+
+		this.router.put(
+			Endpoints.PaymentFinish,
+			AuthRepositoryImpl.is_waiter,
+			PaymentsRepositoryImpl.finish
+		)
 	}
 }
