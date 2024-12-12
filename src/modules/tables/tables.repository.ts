@@ -76,7 +76,7 @@ class TablesRepository {
 
 			const tables = await TablesModel.find(query, null, {
 				sort: sort_config,
-			}).limit(+(limit || 0));
+			}).limit(+(limit || 0)).populate('order in_use_by');
 
 			return res.status(200).json({ content: tables });
 		} catch (error) {
